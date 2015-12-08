@@ -3,7 +3,8 @@ WINDOW_SIZE = 1024;
 NUM_CHANNELS = 2;
 har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,'SamplesPerFrame',WINDOW_SIZE);
 har.ChannelMappingSource = 'Property';
-har.DeviceName = 'ASIO4ALL v2';
+har.DeviceName = 'Default';
+% har.DeviceName = 'ASIO4ALL v2';
 hmfw = dsp.AudioFileWriter('myspeech.wav','FileFormat','WAV');
 disp('Speak into microphone now');
 
