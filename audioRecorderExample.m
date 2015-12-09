@@ -8,7 +8,7 @@ har.DeviceName = 'Default';
 hmfw = dsp.AudioFileWriter('myspeech.wav','FileFormat','WAV');
 disp('Speak into microphone now');
 
-
+%this is me
 % looks like there's about a second and a half overhead here i.e. the
 % recordings are consistantly about 1.5 seconds too short I'm noticing that
 % it switches between two exact numbers of samples every time I run it...
