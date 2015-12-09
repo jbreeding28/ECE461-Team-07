@@ -1,0 +1,12 @@
+function [ averagedSpectrum, varianceVector ] = findAveSpectrum( ...
+    recordingDevice, aquisitionTime )
+%FINDAVESPECTURM Records some audio, and determines 
+%   This function could be used as means of frequency domain noise
+%   calibration.
+%   Bassically, it would record background audio when no drones were
+%   present, then use the collected data to determine an average
+
+    
+
+end
+
