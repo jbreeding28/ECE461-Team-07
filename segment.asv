@@ -1,5 +1,5 @@
 function [ segmentsMatrix ] = segment( toSplit, numOfSegments )
-%segment Splits a 1D array (toSplit) into several evenly-sized pieces. 
+%segment Splits a 1D array (toSplit) into several pieces. 
 %   segmentsMatrix - Each column is one stretch of 'toSplit'.
 %   toSplit - the 1D array to split
 %   numOfSegments - the number of segments
@@ -7,10 +7,10 @@ function [ segmentsMatrix ] = segment( toSplit, numOfSegments )
     lengthPerSegment = floor(length(toSplit)/numOfSegments);
     disp(['# of disregarded samples: ' ...
         num2str(mod(length(toSplit),lengthPerSegment))])
-    segmentsMatrix = zeros(numOfSegments,lengthPerSegment);
+    segmentsMatrix = zeros(numOfSegments,length);
     for i = 1:numOfSegments
-        segmentsMatrix(:,i) = ...
-            toSplit((lengthPerSegment*(i-1)+1):(lengthPerSegment*(i)));
+        
     end
     
 end
+
