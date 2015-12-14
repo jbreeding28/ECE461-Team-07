@@ -18,12 +18,10 @@ WINDOW_SIZE = NUM_FRAMES_HELD*FRAME_SIZE;
 % for drones
 % COREL_KERNAL = [-55 -44 -34 -33 -34 -44 -55];
 
-
-
 har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,...
     'SamplesPerFrame',FRAME_SIZE,'SampleRate',SAMPLE_RATE_HZ);
 har.ChannelMappingSource = 'Property';
-har.DeviceName = 'ASIO4ALL v2';
+% har.DeviceName = 'ASIO4ALL v2';
 hmfw = dsp.AudioFileWriter('myspeech.wav','FileFormat','WAV');
 disp('Speak into microphone now');
 
@@ -51,22 +49,32 @@ while toc < 10
     % make the spectrum one-sided
     windowedDataF = windowedDataF(1:WINDOW_SIZE/2);
     
-    xcorrelation = filter2(1/50*ones(50,1),windowedDataF);
+    % lo_snippet = windowedDataF(1:floor(WINDOW_SIZE/2*0.2),chanNumber);
+    
+    xcorrelation = filter2(1/20*ones(20,1),windowedDataF);
+    xcorrelation2 = filter2([-0.5; 0.0; 0.5], xcorrelation);
     
     lastSpectrum(:,chanNumber) = windowedDataF;
     
-    % live plots for better figure handling techniques see:
+    % LIVE PLOTS
+    % for better figure handling techniques see:
     % http://stackoverflow.com/questions/6681063/programming-in-matlab-how-to-process-in-real-time
     if(mod(loopCounter,2)==0)
-        subplot(3,1,1)
-        plot(timeseriesBuffer(:,chanNumber))
-        axis([0 WINDOW_SIZE -1 1])
-        subplot(3,1,2)
-        plot(windowedDataF)
-        axis([1 WINDOW_SIZE/2 -60 0])
-        subplot(3,1,3)
-        plot(xcorrelation)
-        % axis([1 WINDOW_SIZE/2 -60 0])
+%         subplot(4,1,1)
+%         plot(timeseriesBuffer(:,chanNumber))
+%         axis([0 WINDOW_SIZE -1 1])
+%         subplot(4,1,2)
+%         plot(windowedDataF)
+%         axis([1 WINDOW_SIZE/2 -60 0])
+%         subplot(4,1,3)
+%         plot(xcorrelation)
+%         axis([1 WINDOW_SIZE/2 -60 0])
+%         subplot(4,1,4)
+%         plot(xcorrelation2)
+%         % axis([1 WINDOW_SIZE/2  0])
+%         drawnow;
+        spectrogram(timeseriesBuffer(:,chanNumber));
+        axis([0 0.2 0 550])
         drawnow;
     end
 %     for chanNum = 1:NUM_CHANNELS
@@ -82,5 +90,3 @@ end
 release(har);
 release(hmfw);
 disp('Recording complete');
-
-% need to write a quick 

@@ -32,6 +32,8 @@ while toc < 5
         if(max(X(25:WINDOW_SIZE-25)>0.3)==1)
             disp(['something detected on channel ' num2str(chanNum)]);
         end
+        plot(window);
+        drawnow;
     end
     % to save audio to file:
     % audioBlock = step(hmfw, step(har));
@@ -51,7 +53,7 @@ WINDOW_SIZE = 1024;
 NUM_CHANNELS = 2;
 har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,'SamplesPerFrame',WINDOW_SIZE);
 har.ChannelMappingSource = 'Property';
-har.DeviceName = 'ASIO4ALL v2';
+% har.DeviceName = 'ASIO4ALL v2';
 hmfw = dsp.AudioFileWriter('myspeech.wav','FileFormat','WAV');
 disp('Speak into microphone now');
 
