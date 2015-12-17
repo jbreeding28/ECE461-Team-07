@@ -1,0 +1,21 @@
+function [aveSpectrum] = backgroundSpectrum(duration, Fs, specWindow, ...
+    specOverlap)
+    % BACKGROUNDSPECTRUM determine the average spectrum to
+    FILE_NAME = 'background.wav';
+
+    audioRecorder = dsp.AudioRecorder('NumChannels',1,'SampleRate',Fs);
+    hmfw = dsp.AudioFileWriter(FILE_NAME,'FileFormat','WAV');
+    
+    tic;
+    while toc < duration
+        
+        % save audio to file:
+        step(hmfw, step(audioRecorder));
+        
+    end
+
+    S = spectrogram(audioread(FILE_NAME,Fs),specWindow,specOverlap);
+    aveSpectrum = mean(abs(S),2);
+    
+
+    

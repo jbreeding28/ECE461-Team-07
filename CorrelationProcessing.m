@@ -1,6 +1,6 @@
 % post processing correlation
-%load('CorrTemplates_44100Hz.mat')
-CORRELATION_TEMPLATE = Templates_DJIPhantom3.singleSpike;
+load('CorrTemplates_44100Hz.mat')
+% CORRELATION_TEMPLATE = Templates_DJIPhantom3.singleSpike;
 WINDOW_SIZE = 4096;
 LOWEST_FREQ_BIN = 5;
 HIGHEST_FREQ_BIN = 100;
@@ -44,12 +44,13 @@ subplot(3,1,2)
 surf(10.*log10(S_smooth'), 'EdgeColor','none')
 
 % correlation and binary image generation
-CORRELATION_THRESHOLD = -0.2;
+CORRELATION_THRESHOLD = 0;
 subplot(3,1,3)
 correlationResult = normxcorr2(template,S_smooth);
-correlationResult(correlationResult<0) = 0;
+correlationResult(correlationResult<CORRELATION_THRESHOLD) = 0;
 correlationResult(correlationResult>0) = 1;
-surf(correlationResult', 'EdgeColor','none')
+% correlationResult = bwulterode(correlationResult); % erosion is difficult
+surf(double(correlationResult)', 'EdgeColor','none')
 
 % I need to come up with a good way to threshold
 % look at more data and determine the best way to do this
