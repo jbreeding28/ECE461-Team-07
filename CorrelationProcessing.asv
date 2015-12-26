@@ -39,13 +39,11 @@ end
 
 % smooth things out in time
 for i = 1:size(S,1)
-    S_smooth(i,:) = medfilt1(S_smooth(i,:),16);
+    S_smooth(i,:) = medfilt1(S_smooth(i,:),8);
     %S_smooth(i,:) = filter2(1/3*ones(1,3),S_smooth(i,:));
 end
 subplot(3,1,2)
 surf(10.*log10(S_smooth), 'EdgeColor','none')
-
-S_smooth(S_smooth<0.095) = 0;
 
 % correlation and binary image generation
 CORRELATION_THRESHOLD = 0.5;
