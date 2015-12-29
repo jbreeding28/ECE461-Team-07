@@ -6,11 +6,11 @@ WINDOW_SIZE = 4096;
 SPEC_OVERLAP = WINDOW_SIZE/2;
 NUM_CHANNELS = 2;
 SAMPLE_RATE_HZ = 44100;
-FRAMES_TO_HOLD = 32;
+FRAMES_TO_HOLD = 15;
 
 CALIBRATION_DURATION = 1;
 
-LOWEST_FREQ_BIN = 10;
+LOWEST_FREQ_BIN = 20;
 HIGHEST_FREQ_BIN = 100;
 
 CORRELATION_THRESHOLD = 0.25;
@@ -26,7 +26,7 @@ hSurf1 = surf(zeros(91,15), 'EdgeColor', 'none');
 %NEED TO PARAMETRIZE THE 91,15 THING
 title('Smoothed spectrogram')
 hAxis = gca;
-axis([0 15 0 91 0 25 1 15])
+axis([0 FRAMES_TO_HOLD 0 HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN 0 25 1 15])
 caxis manual
 subplot(2,1,2)
 hSurf2 = surf(zeros(105,18),'EdgeColor','none');
@@ -40,7 +40,7 @@ audioRecorder = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,...
 % preallocation for large variables
 timeseriesBuffer = zeros(FRAMES_TO_HOLD*FRAME_SIZE,NUM_CHANNELS);
 current2Window = zeros(2*WINDOW_SIZE,NUM_CHANNELS);
-S = zeros(HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN+1,15); % FRAMES_TO_HOLD/SPEC_OVERLAP*WINDOW_SIZE
+S = zeros(HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN+1,FRAMES_TO_HOLD); % FRAMES_TO_HOLD/SPEC_OVERLAP*WINDOW_SIZE
 S_smooth = zeros(HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN+1,size(S,2));
 
 %% PREPROCESSING
@@ -70,20 +70,11 @@ while toc < 60
     Snew = Snew(LOWEST_FREQ_BIN:HIGHEST_FREQ_BIN,:);
     S = [Snew S(:,1:size(S,2)-1)];
     
-    
-    % smooth things out in frequency (averaging filter with length of 4)
-    for i = 1:size(S,2)
-        S_smooth(:,i) = filter2(1/2*ones(2,1), abs(S(:,i)));
-    end
-    
-    % smooth things out in time (with a median filter)
-    for i = 1:size(S,1)
-        % the 1D median filter is slow
-        %S_smooth(i,:) = medfilt1(S_smooth(i,:),8);
-        S_smooth(i,:) = filter2(1/3*ones(1,3),S_smooth(i,:));
-    end
-    S_smooth(S_smooth<0.095) = 0;
+    S_smooth = smoothSpectrogram(S);
+    S_smooth(S_smooth<(1.1*mean(mean(abs(S_smooth))))) = 0;
+    S_smooth(S_smooth<0.2) = 0;
     % S_smooth = S_smooth-backspect;
+    
     correlationResult = normxcorr2(template,S_smooth);
     correlationResult(correlationResult<CORRELATION_THRESHOLD) = 0;
     correlationResult(correlationResult>0) = 1;
