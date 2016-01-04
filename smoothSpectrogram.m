@@ -1,6 +1,7 @@
 function [ S_smooth ] = smoothSpectrogram( S )
 %smoothSpectrogram A function that cleans up the spectrogram
-%   Supposed to clean up noise and smooth things out in frequency and time
+%   Supposed to take a spectrogram and clean up noise and smooth things out
+%   in frequency and time
     
     S_smooth = zeros(size(S,1),size(S,2));
     

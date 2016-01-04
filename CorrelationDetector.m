@@ -1,5 +1,5 @@
 %% Correlation Detector
-
+% A detector that uses correlation to find peaks
 %% CONSTANTS
 FRAME_SIZE = 1024;
 WINDOW_SIZE = 4096;
@@ -21,15 +21,22 @@ F_AXIS = linspace(LOWEST_FREQ_BIN/(WINDOW_SIZE/2)*SAMPLE_RATE_HZ,...
 
 %% FIGURE PREP
 figure;
+% setup a spectrogram plot
 subplot(2,1,1)
-hSurf1 = surf(zeros(91,15), 'EdgeColor', 'none');
+hSurf1 = surf(zeros(HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN,15), 'EdgeColor', 'none');
 %NEED TO PARAMETRIZE THE 91,15 THING
 title('Smoothed spectrogram')
-hAxis = gca;
+hAxis1 = gca;
+view(0,90);
+set(hAxis1, 'YScale', 'log');
+%hAxis.YScale = 'log';
 axis([0 FRAMES_TO_HOLD 0 HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN 0 25 1 15])
 caxis manual
 subplot(2,1,2)
 hSurf2 = surf(zeros(105,18),'EdgeColor','none');
+hAxis2 = gca;
+view(0,90);
+set(hAxis2, 'YScale', 'log');
 
 %% VARIABLES
 load('CorrTemplates_44100Hz.mat')
@@ -56,23 +63,23 @@ tic;
 while toc < 60
     
     % save the audio data to the buffer
-%     timeseriesBuffer = [step(audioRecorder); ...
-%     timeseriesBuffer(1:(size(timeseriesBuffer,1)-FRAME_SIZE),:)];
-% 
-%     S = spectrogram(timeseriesBuffer(:,channelNum),...
-%         WINDOW_SIZE,SPEC_OVERLAP);
-%     S = S(LOWEST_FREQ_BIN:HIGHEST_FREQ_BIN,:);
+    timeseriesBuffer = [step(audioRecorder); ...
+    timeseriesBuffer(1:(size(timeseriesBuffer,1)-FRAME_SIZE),:)];
+
+    S = spectrogram(timeseriesBuffer(:,channelNum),...
+        WINDOW_SIZE,SPEC_OVERLAP);
+    S = S(LOWEST_FREQ_BIN:HIGHEST_FREQ_BIN,:);
     
  % faster processing code:
-    currentFrame = step(audioRecorder);
-    current2Window = [currentFrame; current2Window(1:(WINDOW_SIZE-FRAME_SIZE),:)];
-    Snew = spectrogram(current2Window(:,channelNum),WINDOW_SIZE,SPEC_OVERLAP);
-    Snew = Snew(LOWEST_FREQ_BIN:HIGHEST_FREQ_BIN,:);
-    S = [Snew S(:,1:size(S,2)-1)];
+%     currentFrame = step(audioRecorder);
+%     current2Window = [currentFrame; current2Window(1:(WINDOW_SIZE-FRAME_SIZE),:)];
+%     Snew = spectrogram(current2Window(:,channelNum),WINDOW_SIZE,SPEC_OVERLAP);
+%     Snew = Snew(LOWEST_FREQ_BIN:HIGHEST_FREQ_BIN,:);
+%     S = [Snew S(:,1:size(S,2)-1)];
     
     S_smooth = smoothSpectrogram(S);
     S_smooth(S_smooth<(1.1*mean(mean(abs(S_smooth))))) = 0;
-    S_smooth(S_smooth<0.2) = 0;
+    S_smooth(S_smooth<0.4) = 0;
     % S_smooth = S_smooth-backspect;
     
     correlationResult = normxcorr2(template,S_smooth);
@@ -86,9 +93,6 @@ while toc < 60
     set(hSurf1,'ZData',abs(S_smooth));
     set(hSurf2, 'ZData', correlationResult);
     drawnow;
-%     for i = 1:length(out)
-%         
-%     end
     
     
 end
