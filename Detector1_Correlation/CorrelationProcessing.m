@@ -1,3 +1,26 @@
+% This is a test to see if doing normalized 2-dimensional cross correlation
+% on a spectrogram in order to detect slowly varying ridges in a
+% spectrogram will work.
+
+% After so-so results here, a real time correlation feature extracion
+% script ('CorellationDetector.m') was written.
+
+% After trying this out for a while, it was concluded that it will not
+% work. This is due to several things: (1) The correlation templates needed
+% to be larger and more distinct; there were too many false-positive
+% ridges. The templates could not be made longer, because for them to be
+% longer the system would have had to buffer and process more data which
+% would have resulted in more lag between signal reception and decision.
+% (2) Drone audio signals don't always have ridges that stay constant in
+% frequency over time. For instance, when drones go from stationary
+% hovering to moving, ridge frequencies tend to jump up. Multiple
+% correlation templates would be needed to take this into account. The 2D
+% cross corellization process must be done for each correlation template,
+% so more templates means more computation time, which is an expensive
+% resource in real-time processing. Additionally, it would be difficult to
+% generate templates that worked for drones accelerating and deccelerating
+% at different rates.
+
 % post processing correlation
 load('CorrTemplates_44100Hz.mat')
 % CORRELATION_TEMPLATE = Templates_DJIPhantom3.singleSpike;
