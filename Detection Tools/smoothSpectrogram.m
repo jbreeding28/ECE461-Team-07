@@ -3,11 +3,12 @@ function [ S_smooth ] = smoothSpectrogram( S )
 %   Supposed to take a spectrogram and clean up noise and smooth things out
 %   in frequency and time
     
+
     S_smooth = zeros(size(S,1),size(S,2));
     
     % smooth things out in frequency
     for i = 1:size(S,2)
-        S_smooth(:,i) = filter2(1/2*ones(2,1), abs(S(:,i)));
+        S_smooth(:,i) = filter2(1/1*ones(1,1), abs(S(:,i)));
     end
     
     % smooth things out in time
