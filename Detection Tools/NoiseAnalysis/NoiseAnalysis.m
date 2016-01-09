@@ -9,7 +9,7 @@ WINDOW_SIZE = 4096;
 
 filename = 'Sample Audio/people-talking.wav';
 filename = 'Phantom 3 (#2).wav';
-filename = 'background.wav';
+%filename = 'background.wav';
 
 [audio, Fs] = audioread(filename);
 audio = audio(1:floor(1.4*Fs));

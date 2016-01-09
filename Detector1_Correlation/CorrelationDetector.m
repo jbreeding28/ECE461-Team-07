@@ -32,6 +32,7 @@ set(hAxis1, 'YScale', 'log');
 %hAxis.YScale = 'log';
 axis([0 FRAMES_TO_HOLD 0 HIGHEST_FREQ_BIN-LOWEST_FREQ_BIN 0 25 1 15])
 caxis manual
+% set up a correlation plot
 subplot(2,1,2)
 hSurf2 = surf(zeros(105,18),'EdgeColor','none');
 hAxis2 = gca;
