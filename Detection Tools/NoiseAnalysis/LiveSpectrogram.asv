@@ -2,7 +2,7 @@
 
 %% CONSTANTS
 FRAME_SIZE = 2048;
-NUM_CHANNELS = 4;
+NUM_CHANNELS = 2;
 SAMPLE_RATE_HZ = 44100;
 TIME_TO_SAVE = 1;
 WINDOW_SIZE = 4096;
@@ -62,9 +62,8 @@ while toc < RUN_DURATION
     % use filter(b,a,curFrame)
     filteredExtract = filter(b,a,curFrame);
     curFramefft = fft(filteredExtract,44100);
-    m = max(curFramefft);
-    M = abs(m);
-    Direction(M(1),M(2),M(3),M(4));
+    [m1, m2, m3, m4] = max(curFramefft);
+    Direction(m1,m2,m3,m4);
     % load the current frame into timeseriesBuffer and push the last frame
     % out (each column holds NUM_FRAMES_HELD frames)
     timeseriesBuffer(:,:) = [curFrame; ...
