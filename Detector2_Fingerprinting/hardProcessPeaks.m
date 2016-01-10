@@ -16,7 +16,8 @@ function [ detected, noisyInput ] = hardProcessPeaks( pks, locs )
         % obviously, this will need to change
         if(length(pks) >= 3)
             detected = 1;
-            disp('Drone detected')
+            disp('Drone detected');
+            disp(locs);
         end
         
     end

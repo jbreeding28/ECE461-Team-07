@@ -7,10 +7,14 @@ SAMPLE_RATE_HZ = 44100;
 TIME_TO_SAVE = 1;
 WINDOW_SIZE = 4096;
 
-RUN_DURATION = 10;
-
 % FRAMES_HELD is the number of frames held per channel
 FRAMES_HELD = ceil(TIME_TO_SAVE*SAMPLE_RATE_HZ/FRAME_SIZE);
+
+RUN_DURATION = 30;
+F_AXIS = linspace(0,SAMPLE_RATE_HZ/2,WINDOW_SIZE/2+1);
+T_AXIS = linspace(0,(FRAMES_HELD-1)*FRAME_SIZE/SAMPLE_RATE_HZ,FRAMES_HELD-1);
+
+
 
 %% FIGURE PREP
 figure;
@@ -18,8 +22,8 @@ figure;
 subplot(2,1,1)
 %hSurf1 = surf(linspace(0,1,FRAMES_HELD),linspace(0,1,WINDOW_SIZE/2+1),zeros(WINDOW_SIZE/2+1,FRAMES_HELD), 'EdgeColor', 'none');
 hSurf1 = surf(zeros(WINDOW_SIZE/2+1,FRAMES_HELD), 'EdgeColor', 'none');
-set(hSurf1,'XData',linspace(0,(FRAMES_HELD-1)*FRAME_SIZE/SAMPLE_RATE_HZ,FRAMES_HELD));
-set(hSurf1,'YData',linspace(0,SAMPLE_RATE_HZ/2,WINDOW_SIZE/2+1));
+set(hSurf1,'XData',T_AXIS);
+set(hSurf1,'YData',F_AXIS);
 
 title('Smoothed spectrogram');
 hAxis1 = gca;
@@ -31,8 +35,13 @@ ylabel('Frequency (Hz)')
 caxis auto
 
 % plot the current spectrum
-subplot(2,1,1)
-
+subplot(2,1,2)
+hPlot1 = plot(F_AXIS,zeros(WINDOW_SIZE/2+1,1));
+hAxis2 = gca;
+set(hAxis2,'XScale','log');
+set(hAxis2,'YLimMode','manual','YLim',[0,10]);
+set(hAxis2,'XLim', [100, 12000])
+ylabel('Frequency (Hz)')
 
 %% Audio setup
 har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,...
@@ -56,6 +65,7 @@ while toc < RUN_DURATION
     S = spectrogram(timeseriesBuffer(:,chanNumber),WINDOW_SIZE,FRAME_SIZE);
     Sdb = 10*log10(S);
     set(hSurf1,'ZData',abs(Sdb));
+    set(hPlot1,'YData',abs(S(:,2)))
     drawnow;
 end
 
