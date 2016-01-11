@@ -10,7 +10,7 @@ WINDOW_SIZE = 4096;
 % FRAMES_HELD is the number of frames held per channel
 FRAMES_HELD = ceil(TIME_TO_SAVE*SAMPLE_RATE_HZ/FRAME_SIZE);
 
-RUN_DURATION = 30;
+RUN_DURATION = 240;
 F_AXIS = linspace(0,SAMPLE_RATE_HZ/2,WINDOW_SIZE/2+1);
 T_AXIS = linspace(0,(FRAMES_HELD-1)*FRAME_SIZE/SAMPLE_RATE_HZ,FRAMES_HELD-1);
 
@@ -46,7 +46,7 @@ ylabel('Frequency (Hz)')
 %% Audio setup
 har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,...
     'SamplesPerFrame',FRAME_SIZE,'SampleRate',SAMPLE_RATE_HZ);
-har.ChannelMappingSource = 'Property';
+%har.ChannelMappingSource = 'Property';
 disp('Begin testing');
 
 %% Main loop

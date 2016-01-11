@@ -45,6 +45,7 @@ SAMPLES_FED = 2*WINDOW_SIZE;
 %filename = 'Sample Audio/people-talking.wav';
 filename = 'Phantom 3 (#2).wav';
 %filename = 'background.wav';
+filename = '9 6-Audio, steady whistling.wav';
 
 [audio, Fs] = audioread(filename);
 audio = audio(1:floor(2*Fs));
