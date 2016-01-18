@@ -11,3 +11,5 @@ if(min(Bfilt==functionOutput)==0)
 end
 
 disp('meanRemovalFilter1 passed')
+
+clear

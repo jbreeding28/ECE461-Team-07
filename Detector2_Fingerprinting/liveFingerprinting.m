@@ -49,6 +49,10 @@ har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,'SamplesPerFrame',...
     FRAME_SIZE);
 disp('Speak into microphone now');
 
+%% Misc
+% turn the findpeaks 'no peaks found' warning off
+warning('off','signal:findpeaks:largeMinPeakHeight');
+
 %% Main loop
 
 timeseriesBuffer = zeros(FRAMES_HELD*FRAME_SIZE,NUM_CHANNELS);

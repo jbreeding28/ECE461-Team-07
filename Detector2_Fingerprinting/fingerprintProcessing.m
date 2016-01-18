@@ -31,8 +31,8 @@ function [pks, locs] = fingerprintProcessing(audioData)
 
     %% SMOOTH SPECTROGRAM
     %S_smooth = smoothSpectrogram(S);
-    %S_smooth = filter2(1/3*ones(1,3),abs(S));
-    S_smooth = abs(S);
+    S_smooth = filter2(1/15*ones(1,15),abs(S));
+    %S_smooth = abs(S);
 
     %% EXTRACT SIGNLE SPECTRUM
     spectrum = S_smooth(:,SLICE_NUMBER);

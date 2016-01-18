@@ -14,8 +14,6 @@ RUN_DURATION = 240;
 F_AXIS = linspace(0,SAMPLE_RATE_HZ/2,WINDOW_SIZE/2+1);
 T_AXIS = linspace(0,(FRAMES_HELD-1)*FRAME_SIZE/SAMPLE_RATE_HZ,FRAMES_HELD-1);
 
-
-
 %% FIGURE PREP
 figure;
 % setup a spectrogram plot
@@ -50,7 +48,6 @@ har = dsp.AudioRecorder('NumChannels',NUM_CHANNELS,...
 disp('Begin testing');
 
 %% Main loop
-
 timeseriesBuffer = zeros(FRAMES_HELD*FRAME_SIZE,NUM_CHANNELS);
 chanNumber = 1;
 tic;

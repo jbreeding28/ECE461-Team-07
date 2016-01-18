@@ -1,0 +1,20 @@
+function [ audioClass ] = simpleClassifier(featureX, featureY)
+    
+    % eventually consider making the thresholds parameters
+    
+    SIGNAL_ENERGY_CUTOFF = 0.5;
+    SLOPE_XY = 2;
+    
+    if(featureY < SIGNAL_ENERGY_CUTOFF)
+        audioClass = 'Weak signal detected';
+        return;
+    else
+        if(featureY < factorX*SLOPE_XY)
+            audioClass = 'Highly nonstationary signal detected';
+            return;
+        end
+        audioClass = '';
+        return
+    end
+    
+end
