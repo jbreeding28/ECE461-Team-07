@@ -24,6 +24,7 @@ function [pks, locs] = fingerprintProcessing(audioData)
     F_AXIS = linspace(0,SAMPLE_FREQUENCY_HZ/2,WINDOW_SIZE/2+1);
     MEAN_REMOVAL_LENGTH = 7;
     PEAK_THRESHOLD = 0.2;
+    MIN_PEAK_DISTANCE = 8;
 
 
     %% GENERATE SPECTROGRAM
@@ -38,18 +39,21 @@ function [pks, locs] = fingerprintProcessing(audioData)
     spectrum = S_smooth(:,SLICE_NUMBER);
 
     %% SPECTRUM CONDITIONING
-    conditionedSpectrum = meanRemovalFilter1(spectrum, MEAN_REMOVAL_LENGTH);
-    conditionedSpectrum(conditionedSpectrum<0) = 0;
+%     conditionedSpectrum = meanRemovalFilter1(spectrum, MEAN_REMOVAL_LENGTH);
+%     conditionedSpectrum(conditionedSpectrum<0) = 0;
+    conditionedSpectrum = spectrum;
     plot(F_AXIS,conditionedSpectrum);
     %plot(F_AXIS, angle(S(:,SLICE_NUMBER)));
-    set(gca, 'XScale', 'log'), hold on;
+    set(gca, 'XScale', 'log', 'XLim', [10^2 10^5]), hold on;
 
     %% SPECTRUM SEGMENTATION
     % 
 
     %% EXTRACT PEAK INFO
     % take a look at dsp.PeakFinder
-    [pks, locs] = findpeaks(conditionedSpectrum, 'MINPEAKHEIGHT', PEAK_THRESHOLD);
+    [pks, locs] = findpeaks(conditionedSpectrum, ...
+        'MINPEAKHEIGHT', PEAK_THRESHOLD, ...
+        'MINPEAKDISTANCE', MIN_PEAK_DISTANCE);
     
     
 end

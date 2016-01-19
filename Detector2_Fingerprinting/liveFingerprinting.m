@@ -10,6 +10,7 @@ SPECTROGRAM_OVERLAP = WINDOW_SIZE/2;
 F_AXIS = linspace(0,SAMPLE_FREQUENCY_HZ/2,WINDOW_SIZE/2+1);
 MEAN_REMOVAL_LENGTH = 7;
 PEAK_THRESHOLD = 4;
+MIN_PEAK_DISTANCE = 8;
 
 % FRAMES_HELD is the number of frames held per channel
 FRAMES_HELD = ceil(TIME_TO_SAVE*SAMPLE_FREQUENCY_HZ/FRAME_SIZE);
@@ -78,15 +79,18 @@ while toc < RUN_DURATION
     spectrum = S_smooth(:,SLICE_NUMBER);
 
     %% SPECTRUM CONDITIONING
-    conditionedSpectrum = meanRemovalFilter1(spectrum, MEAN_REMOVAL_LENGTH);
-    conditionedSpectrum(conditionedSpectrum<0) = 0;
+    %conditionedSpectrum = meanRemovalFilter1(spectrum, MEAN_REMOVAL_LENGTH);
+    %conditionedSpectrum(conditionedSpectrum<0) = 0;
+    conditionedSpectrum = spectrum;
 
     %% SPECTRUM SEGMENTATION
     % 
 
     %% EXTRACT PEAK INFO
     % take a look at dsp.PeakFinder
-    [pks, locs] = findpeaks(conditionedSpectrum, 'MINPEAKHEIGHT', PEAK_THRESHOLD);
+    [pks, locs] = findpeaks(conditionedSpectrum, ...
+        'MINPEAKHEIGHT', PEAK_THRESHOLD, ...
+        'MINPEAKDISTANCE', MIN_PEAK_DISTANCE);
     [detected, noiseySpectrum] = hardProcessPeaks(pks, locs);
     
     Sdb = 10*log10(S);
