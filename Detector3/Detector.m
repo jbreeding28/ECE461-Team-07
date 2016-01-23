@@ -28,11 +28,13 @@ classdef Detector < handle
         % use this constructor if the detector only prcesses one channel of
         % audio and the audiorecorder is held outside of this class
         function D = Detector(configSettings)
-            D.c = configSettings.constants;
-            D.F_AXIS = linspace(0,D.c.Fs/2,D.c.WINDOW_SIZE/2+1);
-            D.FRAMES_HELD = ceil(D.c.TIME_TO_SAVE*D.c.Fs/D.c.FRAME_SIZE);
-            D.bufferedAudio = zeros(D.FRAMES_HELD*D.c.FRAME_SIZE,1);
-            D.previousSpectrum = zeros(D.c.FRAME_SIZE,1);
+            if(nargin>0)
+                D.c = configSettings.constants;
+                D.F_AXIS = linspace(0,D.c.Fs/2,D.c.WINDOW_SIZE/2+1);
+                D.FRAMES_HELD = ceil(D.c.TIME_TO_SAVE*D.c.Fs/D.c.FRAME_SIZE);
+                D.bufferedAudio = zeros(D.FRAMES_HELD*D.c.FRAME_SIZE,1);
+                D.previousSpectrum = zeros(D.c.WINDOW_SIZE/2+1,1);
+            end
         end
         
         % this is to be used for testing purposes. Instead of using the
@@ -64,14 +66,14 @@ classdef Detector < handle
             D.bufferedAudio = [singleAudioFrame; ...
                 D.bufferedAudio(1:((D.FRAMES_HELD-1)*D.c.FRAME_SIZE))];
             
-            spectrum = spectro();
+            spectrum = D.spectro();
             
             % feature calculation
-            flux = spectralFlux(spectrum);
-            energy = spectralEnergy(spectrum);
+            flux = D.spectralFlux(spectrum);
+            energy = D.spectralEnergy(spectrum);
             
             % decision
-            output = makeDecision(flux,energy,spectrum);
+            output = D.makeDecision(flux,energy,spectrum);
             
         end
         
@@ -99,9 +101,12 @@ classdef Detector < handle
             flux = sum((spectrum2-spectrum1).^2);
         end
         
-        function energy = spectralEnergy(spectrum)
+        function energy = spectralEnergy(D,spectrum)
         %SPECTRALENERGY calculates the energy in the spectrum
             energy = sum(spectrum.^2);
+            if(1<0)
+                disp(D.c.NUM_CHANNELS);
+            end
         end
         
         function output = makeDecision(D,energy,flux,spectrum)
@@ -113,6 +118,7 @@ classdef Detector < handle
         %   or (4), the dronePresent(spectrum) method is called to
         %   distinguish between (3) and (4).
         
+        
             if(energy < D.c.ENERGY_THRESHOLD)
                 output = 'weak signal';
                 return;
@@ -123,7 +129,7 @@ classdef Detector < handle
                 return;
             end
             
-            if(~dronePresent(spectrum))
+            if(~D.dronePresent(spectrum))
                 output = 'non-drone oscillating signal';
                 return;
             end
