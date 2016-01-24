@@ -118,27 +118,28 @@ classdef Detector < handle
         %   or (4), the dronePresent(spectrum) method is called to
         %   distinguish between (3) and (4).
         
+        output = ['E: ', num2str(energy), ' F: ', num2str(flux)];
         
             if(energy < D.c.ENERGY_THRESHOLD)
-                output = 'weak signal';
+                output = [output, ' weak signal'];
                 return;
             end
             
             if(flux < energy*D.c.FLUXPERENERGY_MULTIPLER)
-                output = 'highly non-stationary signal';
+                output = [output, ' highly non-stationary signal'];
                 return;
             end
             
             if(~D.dronePresent(spectrum))
-                output = 'non-drone oscillating signal';
+                output = [output, ' non-drone oscillating signal'];
                 return;
             end
             
-            output = 'drone signal';
+            output = [output ' drone signal'];
             
         end
         
-        function dronePresentBoolean = dronePresent(spectrum)
+        function dronePresentBoolean = dronePresent(D,spectrum)
         %DRONEPRESENT determine if the signal coming in is from a drone
         %   This method should be used only if the input signal appears to
         %   be oscillatory.

@@ -31,10 +31,11 @@ classdef DroneSystem
             outputs = {'1'; '2'; '3'; '4'};
             figure()
             % make text boxes for displaying the output of each detector
+            % (and information relevant to testing)
             for i = 1:DS.c.NUM_CHANNELS
                 hTextBox(i) = uicontrol('style','text');
                 set(hTextBox(i),'String',outputs(i));
-                set(hTextBox(i),'Position',[0 30*i 100 25])
+                set(hTextBox(i),'Position',[0 30*i 300 25])
             end
             
             while(1)
