@@ -10,6 +10,8 @@ classdef Detector < handle
         % FRAMES_HELD is the number of frames held per channel
         FRAMES_HELD;
         previousSpectrum;
+        currentEnergy;
+        currentFlux;
     end
     
     methods
@@ -53,7 +55,7 @@ classdef Detector < handle
             
         end
         
-        function output = step(D,singleAudioFrame)
+        function [decision] = step(D,singleAudioFrame)
         %STEP this function spits out a decision
         %   This method will be take audio one frame at a time and build up
         %   a colection of frames in the 'bufferedAudio' vector. It uses
@@ -69,11 +71,11 @@ classdef Detector < handle
             spectrum = D.spectro();
             
             % feature calculation
-            flux = D.spectralFlux(spectrum);
-            energy = D.spectralEnergy(spectrum);
+            D.currentEnergy = D.spectralEnergy(spectrum);
+            D.currentFlux = D.spectralFlux(spectrum);
             
             % decision
-            output = D.makeDecision(flux,energy,spectrum);
+            decision = D.makeDecision(D.currentFlux,D.currentEnergy,spectrum);
             
         end
         
@@ -122,20 +124,24 @@ classdef Detector < handle
         
             if(energy < D.c.ENERGY_THRESHOLD)
                 output = [output, ' weak signal'];
+                output = 'weak signal';
                 return;
             end
             
             if(flux < energy*D.c.FLUXPERENERGY_MULTIPLER)
                 output = [output, ' highly non-stationary signal'];
+                output = 'highly non-stationary signal';
                 return;
             end
             
             if(~D.dronePresent(spectrum))
                 output = [output, ' non-drone oscillating signal'];
+                output = 'non-drone oscillator signal';
                 return;
             end
             
             output = [output ' drone signal'];
+            output = 'drone signal';
             
         end
         
@@ -145,6 +151,15 @@ classdef Detector < handle
         %   be oscillatory.
             dronePresentBoolean = 1;
         end
+        
+        function energy = getEnergy(D)
+            energy = D.currentEnergy;
+        end
+        
+        function flux = getFlux(D)
+            flux = D.currentFlux;
+        end
+        
         
     end
     
