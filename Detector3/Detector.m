@@ -77,6 +77,8 @@ classdef Detector < handle
             % decision
             decision = D.makeDecision(D.currentFlux,D.currentEnergy,spectrum);
             
+            D.previousSpectrum = spectrum;
+            
         end
         
         function spectrum = spectro(D)
@@ -160,6 +162,9 @@ classdef Detector < handle
             flux = D.currentFlux;
         end
         
+        function lastSpectrum = getPreviousSpectrum(D)
+           lastSpectrum = D.previousSpectrum; 
+        end
         
     end
     

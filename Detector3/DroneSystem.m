@@ -1,5 +1,5 @@
 classdef DroneSystem
-    %DRONESYSTEM Summary of this class goes here
+    %DRONESYSTEM This class builds up a drone system
     %   Detailed explanation goes here
     
     properties
@@ -10,6 +10,7 @@ classdef DroneSystem
         detectors = Detector();
         localizer;
         audioRecorder;
+        testVariable;
     end
     
     methods
@@ -25,14 +26,38 @@ classdef DroneSystem
                 DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'DeviceName', ...
                 configSettings.audioDriver,'NumChannels', ...
                 DS.c.NUM_CHANNELS);
+            
+            DS.testVariable = zeros(2049,1);
         end
         
         % consider trying to make an event called stop
         
         function start(DS)
+            % setup the live plots
             decisions = {'1'; '2'; '3'; '4'};
-            figure()
-            % make text boxes for displaying the output of each detector
+            
+            % [hFig hp ha] = figureSetup();
+            hFig = figure();
+            subplot(2,1,1);
+            hp(1) = plot(1,1,'O');
+            axis manual
+            ha(1) = gca;
+            set(ha(1),'YLimMode','manual')
+%             set(ha(1),'YLim',[0 1000],'YScale','log','XLim',[0 1], ...
+%                 'XScale','log')
+            
+            % this is a line of great interest when calibrating
+            set(ha(1),'YLim',[0 1000],'XLim',[0 0.02])
+
+            
+            title('Feature space')
+            subplot(2,1,2);
+            hp(2) = plot(zeros(DS.c.FRAME_SIZE,1)');
+            ha(2) = gca;
+            set(ha(2),'YLimMode','manual')
+            title('Current spectrum')
+            
+            % text boxes for displaying the output of each detector
             % (and information relevant to testing)
             for i = 1:DS.c.NUM_CHANNELS
                 hTextBox(i) = uicontrol('style','text');
@@ -40,6 +65,7 @@ classdef DroneSystem
                 set(hTextBox(i),'Position',[0 30*i 300 25])
             end
             
+            % MAIN LOOP
             while(1)
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
@@ -49,10 +75,12 @@ classdef DroneSystem
                         num2str(DS.detectors(i).getEnergy()), ' F: ', ...
                         num2str(DS.detectors(i).getFlux())];
                     set(hTextBox(i),'String',stringOutput);
-                    
-                    % WRITE CODE HERE TO PLOT WHERE THE THING IS IN SPACE
                 end
+                set(hp(1),'YData',DS.detectors(1).getEnergy(),'XData',...
+                    DS.detectors(i).getFlux());
+                set(hp(2),'YData',DS.detectors(1).getPreviousSpectrum());
                 drawnow;
+                DS.testVariable = DS.detectors(1).getPreviousSpectrum();
                 
             end
         end
@@ -67,6 +95,11 @@ classdef DroneSystem
                 decisions(i) = {DS.detectors(i).step(singleAudioFrame(:,i))};
                 decisionNums(i) = DS.classStringToNum(decisions(i));
             end
+        end
+        
+        function [hFig, hp, ha] = figureSetup(D)
+        %FIGURESETUP a function used to setup a figure for testing purposes
+            
         end
         
         function calibration(DS)
