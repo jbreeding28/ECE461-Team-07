@@ -25,8 +25,17 @@
 % 
 % end
 
+% 4-4.5k
+% 17.5-18k
+% 19-19.5k
 
-function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram)
+% consider making the confidence score a function of the distance between
+% "target" peaks and where the peaks actually show up
+
+% have elliott implement max function [val idx] = max(a);
+
+
+function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram,x,y,z)
 %HARDPROCESSPEAKS Hardcoded processing of conditioned spectogram
 %    At this point, we can just take the peak information and try to
 %    determine what we're looking at in a hardcoded manner.
@@ -43,7 +52,7 @@ function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram)
         confidenceScore = confidenceScore + 30;
     elseif((conditionedSpectrogram(y-1)+conditonedSpectrogram(y)+conditionspectrogram(y+1))/3 >= 5)
         confidenceScore = confidenceScore + 30;
-    elseif((conditionedSpectrogram(x-1)+conditonedSpectrogram(x)+conditionspectrogram(x+1))/3 >= 5)
+    elseif((conditionedSpectrogram(z-1)+conditonedSpectrogram(z)+conditionspectrogram(z+1))/3 >= 5)
         confidenceScore = confidenceScore + 30;
     else(confidenceScore >= 60)
             detected = 1;
