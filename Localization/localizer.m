@@ -6,7 +6,8 @@ classdef localizer
     end
     
     methods
-        function L = localizer();
+        function L = localizer()
+        end
         function [] = direction(A1,A2,A3,A4)
             %Input 4 amplitudes (representing the peak magnitude recieved at each mic)
             %  Output: Text describing the direction of the source
@@ -76,7 +77,6 @@ classdef localizer
             %fprintf('It is located %s from the center\n',string);
             %string = ['Q' num2str(I1)];
             %fprintf('Max = %f\nIndice: %i\n',max1,I1);
-        end
         end
     end   
 end

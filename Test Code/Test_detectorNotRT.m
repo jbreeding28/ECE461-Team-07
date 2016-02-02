@@ -12,7 +12,7 @@ clear
 
 
 %% get the system running
-load('C:\Users\owencb\Documents\ECE46x\ECE461-Team-07\Detector3\configSettings_alternate.mat')
+load('Detector3\configSettings_alternate.mat')
 % c, a struct, will hold the constants
 c = configSettings_alternate.constants;
 

@@ -83,9 +83,7 @@ classdef DroneSystem
             end
         end
         
-        function localizerTest(DS,A1,A2,A3,A4)
-            DS.localizer.direction(A1,A2,A3,A4);
-        end
+        function 
         
         function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)
         %FIGURESETUP a function used to setup a figure for testing purposes

@@ -15,9 +15,5 @@ channel2 = 'from1to2_01.wav';
 audioFrameMatrix01 = frameSegment(audio_01,configSettings.constants.FRAME_SIZE);
 % three more ...
 
-
-system1.localizerTest(A1,A2,A3,A4);
-
-% take the ave power for each channel and pass those to the localizerTest()
-% function
+system1.localizerTest(A1,);
 
