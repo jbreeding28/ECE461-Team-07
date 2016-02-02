@@ -71,16 +71,21 @@ classdef DroneSystem
             end
         end
         
-        function decisionNums = test(DS,singleAudioFrame)
+        function [decisionNums,fluxes,energies] = test(DS,singleAudioFrame)
             %TEST take a single audio frame and make a decision
             %   This function is meant to be called when there is a bunch
             %   of recorded data that the system is to be tested with.
             decisions = cell(DS.c.NUM_CHANNELS,1);
             decisionNums = zeros(DS.c.NUM_CHANNELS,1);
+            fluxes = zeros(DS.c.NUM_CHANNELS,1);
+            energies = zeros(DS.c.NUM_CHANNELS,1);
             for i = 1:DS.c.NUM_CHANNELS
                 decisions(i) = {DS.detectors(i).step(singleAudioFrame(:,i))};
-                decisionNums(i) = DS.classStringToNum(decisions(i));
+                decisionNumbers(i) = DS.classStringToNum(decisions(i));
+                fluxes(i) = DS.detectors(i).getFlux();
+                energies(i) = DS.detectors(i).getEnergy();
             end
+            decisionNums = {decisionNumbers};
         end
         
         function localizerTest(DS,A1,A2,A3,A4)

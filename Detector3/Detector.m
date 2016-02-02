@@ -15,20 +15,7 @@ classdef Detector < handle
     end
     
     methods
-        % use this constructor if the detector is going to hold the
-        % audiorecorder
-%         function D = detector(configSettings)
-%             D.c = configSettings.constants;
-%             D.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
-%             D.c.FRAME_SIZE, 'SampleRate',D.c.Fs,'DeviceName', ...
-%             D.c.DEVICE_NAME,'NumChannels', D.c.NUM_CHANNELS);
-%             D.F_AXIS = linspace(0,D.c.Fs/2,D.c.WINDOW_SIZE/2+1);
-%             D.FRAMES_HELD = ceil(D.c.TIME_TO_SAVE*D.c.Fs/D.c.FRAME_SIZE);
-%             D.bufferedAudio = zeros(D.FRAMES_HELD*D.c.FRAME_SIZE,NUM_CHANNELS);
-%         end
          
-        % use this constructor if the detector only prcesses one channel of
-        % audio and the audiorecorder is held outside of this class
         function D = Detector(configSettings)
             if(nargin>0)
                 D.c = configSettings.constants;
@@ -37,22 +24,6 @@ classdef Detector < handle
                 D.bufferedAudio = zeros(D.FRAMES_HELD*D.c.FRAME_SIZE,1);
                 D.previousSpectrum = zeros(D.c.WINDOW_SIZE/2+1,1);
             end
-        end
-        
-        % this is to be used for testing purposes. Instead of using the
-        % audiorecorder object to collect data, it allows signle frames of
-        % audio to be sent in from other sources.
-        function stepNonRT(singleAudioFrame)
-            if(size(singleAudioFrame,1)~=detectorObj.c.FRAME_SIZE)
-                error('The size of the input frame does not match the frame size specified in the configuration settings of this detector');
-            end
-            
-            if(size(singleAudioFrame,2)~=detectorObj.c.NUM_CHANNELS)
-                error('The number of channels in the input frame does not match the number of channels specified in the configuration settings of this detector');
-            end
-            
-            step(singleAudioFrame);
-            
         end
         
         function [decision] = step(D,singleAudioFrame)
@@ -68,7 +39,14 @@ classdef Detector < handle
             D.bufferedAudio = [singleAudioFrame; ...
                 D.bufferedAudio(1:((D.FRAMES_HELD-1)*D.c.FRAME_SIZE))];
             
+            % spectrogram on the buffered audio
             spectrum = D.spectro();
+            
+            % set (0-150Hz) to zero
+            % note that this calculation is here to show work done. To
+            % optimize the code, replace with a constant
+            binsize_Hz = (D.c.Fs/2)/(D.c.WINDOW_SIZE/2+1);
+            spectrum(1:ceil(150/binsize_Hz)) = 0;
             
             % feature calculation
             D.currentEnergy = D.spectralEnergy(spectrum);
