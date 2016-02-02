@@ -38,7 +38,7 @@ classdef DroneSystem
             % setup the live plots
             decisions = {'1'; '2'; '3'; '4'};
             
-            [hFig, hp, ha, hTextBox] = DS.figureSetup(decisions);
+            [hFig, hp, ha, hTextBox] = DS.figureSetup(decisions); %#ok<*ASGLU>
             energies = zeros(10,1);
             fluxes = zeros(10,1);
             spectra = zeros(10, DS.c.WINDOW_SIZE/2+1);
