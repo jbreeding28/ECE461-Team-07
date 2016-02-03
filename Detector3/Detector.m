@@ -42,9 +42,8 @@ classdef Detector < handle
             % spectrogram on the buffered audio
             spectrum = D.spectro();
             
-            % set (0-150Hz) to zero
-            % note that this calculation is here to show work done. To
-            % optimize the code, replace with a constant
+            % set (0-150Hz) to zero note that this calculation is here to
+            % show work. To optimize the code, replace with a constant
             binsize_Hz = (D.c.Fs/2)/(D.c.WINDOW_SIZE/2+1);
             spectrum(1:ceil(150/binsize_Hz)) = 0;
             
@@ -53,7 +52,7 @@ classdef Detector < handle
             D.currentFlux = D.spectralFlux(spectrum);
             
             % decision
-            decision = D.makeDecision(D.currentFlux,D.currentEnergy,spectrum);
+            decision = D.makeDecision(D.currentEnergy,D.currentFlux,spectrum);
             
             D.previousSpectrum = spectrum;
             
@@ -86,9 +85,6 @@ classdef Detector < handle
         function energy = spectralEnergy(D,spectrum)
         %SPECTRALENERGY calculates the energy in the spectrum
             energy = sum(spectrum.^2);
-            if(1<0)
-                disp(D.c.NUM_CHANNELS);
-            end
         end
         
         function output = makeDecision(D,energy,flux,spectrum)

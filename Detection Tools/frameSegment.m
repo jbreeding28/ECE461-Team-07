@@ -9,9 +9,9 @@ function [ segmentsMatrix ] = frameSegment( toSplit, frameSize )
     numOfSegments = floor(length(toSplit)/frameSize);
     
     samplesDisregarded = mod(length(toSplit),frameSize);
-    if(samplesDisregarded>0)
-        warning([num2str(samplesDisregarded),' sample(s) disregarded']);
-    end
+%     if(samplesDisregarded>0)
+%         warning([num2str(samplesDisregarded),' sample(s) disregarded']);
+%     end
     
     segmentsMatrix = zeros(frameSize,numOfSegments);
     for i = 1:numOfSegments
