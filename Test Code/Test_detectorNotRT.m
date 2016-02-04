@@ -1,17 +1,10 @@
 clear
 %% INFO
 
-% CHRISTIAN: WRITE DOCUMENTATION FOR THIS
-
 % (1) is weak signal
 % (2) is a highly non stationary signal
 % (3) is a non-drone oscillator
 % (4) is a drone oscillator
-
-% steps for testing using the non RT method
-% specify an audio recording
-
-
 
 %% get the system running
 load('Detector3\configSettings_LaptopSetup.mat')
@@ -45,13 +38,17 @@ end
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
 fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 
 % generate a feature space plot
 figure;
+subplot(2,1,1)
 plot(fluxes,energies,'o')
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
+subplot(2,1,2)
+hist(cell2mat(decisions),4)
 
 if(~isempty(failedDecisionIndexes))
     disp(['Failed weak signal test at indicies: ', num2str(failedDecisionIndexes)]);
@@ -77,13 +74,17 @@ end
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
 fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 
 % generate a feature space plot
 figure;
+subplot(2,1,1)
 plot(fluxes,energies,'o')
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
+subplot(2,1,2)
+hist(cell2mat(decisions),4)
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
@@ -105,13 +106,17 @@ end
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
 fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 
 % generate a feature space plot
 figure;
+subplot(2,1,1)
 plot(fluxes,energies,'o')
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
+subplot(2,1,2)
+hist(cell2mat(decisions),4)
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
@@ -133,13 +138,17 @@ end
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
 fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 
 % generate a feature space plot
 figure;
+subplot(2,1,1)
 plot(fluxes,energies,'o')
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
+subplot(2,1,2)
+hist(cell2mat(decisions),4)
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])

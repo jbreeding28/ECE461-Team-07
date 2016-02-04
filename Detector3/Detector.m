@@ -104,7 +104,7 @@ classdef Detector < handle
                 return;
             end
             
-            if(flux < energy*D.c.FLUXPERENERGY_MULTIPLER)
+            if(energy < flux*D.c.DECISION_SLOPE)
                 output = [output, ' highly non-stationary signal'];
                 output = 'highly non-stationary signal';
                 return;
