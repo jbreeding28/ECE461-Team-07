@@ -22,7 +22,8 @@ c = configSettings_alternate.constants;
 configSettings_alternate.constants.NUM_CHANNELS = 1;
 system1 = DroneSystem(configSettings_alternate);
 %% weak signal test(s)
-disp('single channel weak signal test:')
+testname = 'single channel weak signal test';
+disp(testname)
 filename = 'Sample Audio/Our Recordings/Scarlett 18i8/4 3-Audio-1, background noise.wav';
 [audio, Fs] = audioread(filename);
 audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
@@ -43,16 +44,25 @@ end
 
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
-fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(energies));
+fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+
+% generate a feature space plot
+figure;
+plot(fluxes,energies,'o')
+title(testname)
+xlabel('Normalized spectral flux')
+ylabel('Spectral energy')
 
 if(~isempty(failedDecisionIndexes))
     disp(['Failed weak signal test at indicies: ', num2str(failedDecisionIndexes)]);
 end
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
+disp('--');
 
-%% Highly non-stationary tests 
-disp('single channel non stationary (footsteps) test:')
+%% Highly non-stationary tests (footsteps)
+testname = 'single channel non stationary (footsteps) test';
+disp(testname)
 filename = '4 3-Audio-1, footsteps.wav';
 [audio, Fs] = audioread(filename);
 audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
@@ -66,14 +76,21 @@ end
 
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
-fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(energies));
+fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+
+% generate a feature space plot
+figure;
+plot(fluxes,energies,'o')
+title(testname)
+xlabel('Normalized spectral flux')
+ylabel('Spectral energy')
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
-
-%% another non stationary test
-
-disp('single channel non stationary (simple speech) test:')
+disp('--')
+%% another non stationary test (simple speech)
+testname = 'single channel non stationary (simple speech) test';
+disp(testname)
 filename = '4 3-Audio-1, speech.wav';
 [audio, Fs] = audioread(filename);
 audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
@@ -87,13 +104,21 @@ end
 
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
-fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(energies));
+fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+
+% generate a feature space plot
+figure;
+plot(fluxes,energies,'o')
+title(testname)
+xlabel('Normalized spectral flux')
+ylabel('Spectral energy')
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
-
+disp('--')
 %% Drone test(s)
-disp('single channel drone signal test:')
+testname = 'single channel drone signal test';
+disp(testname)
 filename = '9 6-Audio, steady whistling.wav';
 [audio, Fs] = audioread(filename);
 audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
@@ -107,7 +132,15 @@ end
 
 % remove edge effects due to the smoothing filter 
 energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
-fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(energies));
+fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+
+% generate a feature space plot
+figure;
+plot(fluxes,energies,'o')
+title(testname)
+xlabel('Normalized spectral flux')
+ylabel('Spectral energy')
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
+disp('--')
