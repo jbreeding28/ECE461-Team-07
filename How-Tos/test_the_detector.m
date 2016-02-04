@@ -1,3 +1,4 @@
+clear
 % a script for testing the detector
 
 % load the configuration file
@@ -6,7 +7,7 @@ load('configSettings_LaptopSetup.mat')
 % create an instance of the system, and store it in a variable called
 % 'system1'
 ourSystem = DroneSystem(configSettings_alternate);
-c = configSettings.contants;
+c = configSettings_alternate.constants;
 
 % load test audio in
 [audio, Fs] = audioread('4 3-Audio-1, speech.wav');
@@ -23,4 +24,6 @@ audioFrameMatrix = frameSegment(audio, configSettings_alternate.constants.FRAME_
 % the 3rd column of 'audioFrameMatrix'.
 [decision,energy,flux] = ourSystem.test(audioFrameMatrix(:,1));
 
-% the outputs are the outputs for this particular frame
+% the outputs are the outputs for frame 1. To get the outputs for a bunch
+% of frames, stick this is a loop. See Test_detectorNotRT.m for more
+% advanced code.
