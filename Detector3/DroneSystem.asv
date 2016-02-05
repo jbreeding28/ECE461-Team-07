@@ -94,11 +94,7 @@ classdef DroneSystem
             A2 = sum(abs(Af2(1)));
             A3 = sum(abs(Af3(1)));
             A4 = sum(abs(Af4(1)));
-            mval = max([A1 A2 A3 A4]);
-            A1 = A1/mval;
-            A2 = A2/mval;
-            A3 = A3/mval;
-            A4 = A4/mval;
+            [A1 A2 A3 A4] = ./max([A1 A2 A3 A4]);
             DS.localizer.direction(A1,A2,A3,A4);
         end
         
