@@ -12,6 +12,7 @@ classdef Detector < handle
         previousSpectrum;
         currentEnergy;
         currentFlux;
+        autoCorrelator;
     end
     
     methods
@@ -23,6 +24,9 @@ classdef Detector < handle
                 D.FRAMES_HELD = ceil(D.c.TIME_TO_SAVE*D.c.Fs/D.c.FRAME_SIZE);
                 D.bufferedAudio = zeros(D.FRAMES_HELD*D.c.FRAME_SIZE,1);
                 D.previousSpectrum = zeros(D.c.WINDOW_SIZE/2+1,1);
+                D.autoCorrelator = dsp.Autocorrelator(...
+                    'MaximumLagSource','Property','MaximumLag',...
+                    floor(1/150*D.c.Fs));
             end
         end
         
@@ -125,13 +129,11 @@ classdef Detector < handle
         %DRONEPRESENT determine if the signal coming in is from a drone
         %   This method should be used only if the input signal appears to
         %   be oscillatory.
-            [harmRatio, f0] = feature_harmonic(D.bufferedAudio,D.c.Fs);
             
-            if(harmRatio < 0.4 || f0 < 150 || f0 > 400)
-                dronePresentBoolean = 0;
-                return;
-            end
-            dronePresentBoolean = 1;
+            % [harmRatio, f0] = feature_harmonic(D.bufferedAudio,D.c.Fs);
+            
+            [~, harmonic] = D.periodicity();
+            dronePresentBoolean = harmonic;
 
         end
         
@@ -145,6 +147,27 @@ classdef Detector < handle
         
         function lastSpectrum = getPreviousSpectrum(D)
            lastSpectrum = D.previousSpectrum; 
+        end
+        
+        function [f0, appearsPeriodic] = periodicity(D)
+            % define a frequency range
+            lo_f = 150;
+            hi_f = 400;
+            
+            maximumLag = floor(1/lo_f*D.c.Fs);
+            minimumLag = floor(1/hi_f*D.c.Fs);
+            
+            % compute autocorrelation
+            autoCor = step(D.autoCorrelator,D.bufferedAudio);
+            
+            autoCor(1:minimumLag) = 0;
+            harmonicLag = find(autoCor == max(autoCor));
+            f0 = (harmonicLag/D.c.Fs)^-1;
+            appearsPeriodic = 0;
+            if(autoCor(harmonicLag) > ...
+                    1.5*mean(autoCor((minimumLag+1):length(autoCor))))
+                appearsPeriodic = 1;
+            end
         end
         
     end
