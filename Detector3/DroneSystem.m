@@ -68,7 +68,7 @@ classdef DroneSystem
                 drawnow;
                 DS.testVariable = DS.detectors(1).getPreviousSpectrum();
                 
-                DS.localizerTest(DS,);
+                %DS.localizerTest(DS,);
             end
         end
         

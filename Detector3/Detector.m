@@ -96,7 +96,7 @@ classdef Detector < handle
         %   or (4), the dronePresent(spectrum) method is called to
         %   distinguish between (3) and (4).
         
-        output = ['E: ', num2str(energy), ' F: ', num2str(flux)];
+            output = ['E: ', num2str(energy), ' F: ', num2str(flux)];
         
             if(energy < D.c.ENERGY_THRESHOLD)
                 output = [output, ' weak signal'];
@@ -125,7 +125,14 @@ classdef Detector < handle
         %DRONEPRESENT determine if the signal coming in is from a drone
         %   This method should be used only if the input signal appears to
         %   be oscillatory.
+            [harmRatio, f0] = feature_harmonic(D.bufferedAudio,D.c.Fs);
+            
+            if(harmRatio < 0.4 || f0 < 150 || f0 > 400)
+                dronePresentBoolean = 0;
+                return;
+            end
             dronePresentBoolean = 1;
+
         end
         
         function energy = getEnergy(D)
