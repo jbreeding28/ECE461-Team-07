@@ -129,10 +129,8 @@ audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
 decisions = cell(size(audioFrameMatrix,2),1);
 fluxes = zeros(1,size(audioFrameMatrix,2));
 energies = zeros(1,size(audioFrameMatrix,2));
-V = zeros(12,size(audioFrameMatrix,2));
 for i = 1:size(audioFrameMatrix,2)
     [decisions(i),fluxes(i),energies(i)] = system1.test(audioFrameMatrix(:,i));
-    %V(:,i) = feature_chroma_vector(audioFrameMatrix(:,i),c.Fs);
 end
 
 % remove edge effects due to the smoothing filter 

@@ -42,13 +42,16 @@ classdef DroneSystem
             energies = zeros(10,1);
             fluxes = zeros(10,1);
             spectra = zeros(10, DS.c.WINDOW_SIZE/2+1);
+            amplitudes = zeros(1,DS.c.NUM_CHANNELS);
             
             % MAIN LOOP
             while(1)
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
                     decisions(i) = {DS.detectors(i).step(audioFrame(:,i))};
-                    % decisions(i) = {};
+                    if(strcmp(decision{i},'drone signal'))
+                        amplitudes(i) = DS.detectors(i).getDroneAmplitude();
+                    end
                     stringOutput = [decisions{i}, ' E: ', ...
                         num2str(DS.detectors(i).getEnergy()), ' F: ', ...
                         num2str(DS.detectors(i).getFlux())];
@@ -68,7 +71,12 @@ classdef DroneSystem
                 drawnow;
                 DS.testVariable = DS.detectors(1).getPreviousSpectrum();
                 
-                %DS.localizerTest(DS,);
+                % if there is a complete setup, run the localizer
+                if(DS.c.NUM_CHANNELS==4)
+                    DS.localizer.direction(amplitudes(1),amplitudes(2),...
+                        amplitudes(3),amplitudes(4));
+                end
+
             end
         end
         
@@ -87,6 +95,10 @@ classdef DroneSystem
                 energies(i) = DS.detectors(i).getEnergy();
             end
             decisionNums = {decisionNumbers};
+        end
+        
+        function localizerStep(DS,Af1,Af2,Af3,Af4)
+            DS.localizer.direction()
         end
   
         function localizerTest(DS,Af1,Af2,Af3,Af4)

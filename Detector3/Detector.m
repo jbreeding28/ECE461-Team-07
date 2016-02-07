@@ -12,6 +12,7 @@ classdef Detector < handle
         previousSpectrum;
         currentEnergy;
         currentFlux;
+        currentDroneAmplitude;
         autoCorrelator;
     end
     
@@ -27,6 +28,7 @@ classdef Detector < handle
                 D.autoCorrelator = dsp.Autocorrelator(...
                     'MaximumLagSource','Property','MaximumLag',...
                     floor(1/150*D.c.Fs));
+                D.currentDroneAmplitude = 0;
             end
         end
         
@@ -99,41 +101,46 @@ classdef Detector < handle
         %   signal'. In the cases that the signal appear to be in class (3)
         %   or (4), the dronePresent(spectrum) method is called to
         %   distinguish between (3) and (4).
-        
-            output = ['E: ', num2str(energy), ' F: ', num2str(flux)];
+            
+            D.currentDroneAmplitude = 0;
         
             if(energy < D.c.ENERGY_THRESHOLD)
-                output = [output, ' weak signal'];
                 output = 'weak signal';
                 return;
             end
             
             if(energy < flux*D.c.DECISION_SLOPE)
-                output = [output, ' highly non-stationary signal'];
                 output = 'highly non-stationary signal';
                 return;
             end
             
-            if(~D.dronePresent(spectrum))
-                output = [output, ' non-drone oscillating signal'];
+            amplitude = D.dronePresent(spectrum);
+            D.currentDroneAmplitude = amplitude;
+            
+            if(amplitude==0)
                 output = 'non-drone oscillator signal';
                 return;
             end
             
-            output = [output ' drone signal'];
             output = 'drone signal';
             
         end
         
-        function dronePresentBoolean = dronePresent(D,spectrum)
+        function amplitude = dronePresent(D,spectrum)
         %DRONEPRESENT determine if the signal coming in is from a drone
         %   This method should be used only if the input signal appears to
         %   be oscillatory.
             
             % [harmRatio, f0] = feature_harmonic(D.bufferedAudio,D.c.Fs);
             
-            [~, harmonic] = D.periodicity();
-            dronePresentBoolean = harmonic;
+            [f0, harmonic] = D.periodicity();
+            
+            if(~harmonic)
+                amplitude = 0;
+                return;
+            end
+            
+            amplitude = D.signalStrengthEstimate(f0,3,spectrum);
 
         end
         
@@ -168,6 +175,20 @@ classdef Detector < handle
                     1.5*mean(autoCor((minimumLag+1):length(autoCor))))
                 appearsPeriodic = 1;
             end
+        end
+        
+        function amplitudeSum = signalStrengthEstimate(D,f0,numHarmonics,spectrum)
+            amplitudeSum = 0;
+            f0_binNum = floor(f0/(D.c.Fs/D.c.WINDOW_SIZE));
+            for i = 1:numHarmonics
+                for j = -2:2
+                    amplitudeSum = amplitudeSum+spectrum(i*f0_binNum+j);
+                end
+            end
+        end
+        
+        function amplitude = getDroneAmplitude(D)
+            amplitude = D.currentDroneAmplitude;
         end
         
     end
