@@ -28,8 +28,8 @@ audioFrameMatrix4 = frameSegment(audio4, configSettings_alternate.constants.FRAM
 % the columns of 'audioFrameMatrix' is a single frame of audio, so we can
 % access a single frame like this: x=audioFrameMatrix(:,3). This makes x
 % the 3rd column of 'audioFrameMatrix'.
-for i = 1:size(audioFramMatrix1,2)
-ourSystem.localizerTest(audioFrameMatrix1(:,i),audioFrameMatrix2(:,i),audioFrameMatrix3(:,i),audioFrameMatrix4(:,i));
+for i = 1:size(audioFrameMatrix1,2)
+ourSystem.localizerTest([audioFrameMatrix1(:,i),audioFrameMatrix2(:,i),audioFrameMatrix3(:,i),audioFrameMatrix4(:,i)]);
 end
 
 % the outputs are the outputs for frame 1. To get the outputs for a bunch

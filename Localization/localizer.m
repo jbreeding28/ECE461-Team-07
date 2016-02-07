@@ -1,4 +1,4 @@
-classdef localizer
+classdef Localizer
     %LOCALIZER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -6,7 +6,7 @@ classdef localizer
     end
     
     methods
-        function L = localizer()
+        function L = Localizer()
         end
         function [] = direction(A1,A2,A3,A4)
             %Input 4 amplitudes (representing the peak magnitude recieved at each mic)
