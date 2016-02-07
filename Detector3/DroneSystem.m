@@ -49,7 +49,7 @@ classdef DroneSystem
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
                     decisions(i) = {DS.detectors(i).step(audioFrame(:,i))};
-                    if(strcmp(decision{i},'drone signal'))
+                    if(strcmp(decisions{i},'drone signal'))
                         amplitudes(i) = DS.detectors(i).getDroneAmplitude();
                     end
                     stringOutput = [decisions{i}, ' E: ', ...
