@@ -1,41 +1,10 @@
-% function [ detected, noisyInput ] = hardProcessPeaks( pks, locs )
-% %HARDPROCESSPEAKS Hardcoded processing of peaks
-% d   At this point, we can just take the peak information and try to
-%    determine what we're looking at in a hardcoded manner.
-%     
-%     TOO_MANY_PEAKS = 10;
-%     
-%     detected = 0;
-%     noisyInput = 0;
-%     
-%     if(length(pks) >= TOO_MANY_PEAKS)
-%         % this does NOT work
-%         warning('Powerful noise source detected');
-%         noisyInput = 1;
-%     else
-%         % obviously, this will need to change
-%         if(length(pks) >= 3)
-%             detected = 1;
-%             disp('Drone detected');
-%             disp(locs);
-%         end
-%         
-%     end
-%     
-% 
-% end
-
-% 4-4.5k
-% 17.5-18k
-% 19-19.5k
-
 % consider making the confidence score a function of the distance between
 % "target" peaks and where the peaks actually show up
 
 % have elliott implement max function [val idx] = max(a);
 
 
-function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram,x,y,z)
+function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram)
 %HARDPROCESSPEAKS Hardcoded processing of conditioned spectogram
 %    At this point, we can just take the peak information and try to
 %    determine what we're looking at in a hardcoded manner.
@@ -47,12 +16,26 @@ function [ detected, noisyInput ] = hardProcessPeaks(conditionedSpectrogram,x,y,
 % during live testing.
 
 % Confience score I can explain tomorrow.
+% k is number of peaks to find
+    n = 100;
+    maxval = zeros(n,1);
+    ind = zeros(n,1);
     confidenceScore = 0;
-    if((conditionedSpectrogram(x-1)+conditonedSpectrogram(x)+conditionspectrogram(x+1))/3 >= 5)
+    tic
+    for k = 1:n
+        [maxk, indk] = max(conditionedSpectrogram);
+        maxval(k) = maxk; 
+        ind(k) = indk;
+        conditionedSpectrogram(ind(k)) = -Inf;
+    end
+    display(maxval);
+    display(ind);
+    toc
+    if((conditionedSpectrogram(400-1)+conditionedSpectrogram(400)+conditionedSpectrogram(400+1))/3 >= 5)
         confidenceScore = confidenceScore + 30;
-    elseif((conditionedSpectrogram(y-1)+conditonedSpectrogram(y)+conditionspectrogram(y+1))/3 >= 5)
+    elseif((conditionedSpectrogram(700-1)+conditionedSpectrogram(700)+conditionedSpectrogram(700+1))/3 >= 5)
         confidenceScore = confidenceScore + 30;
-    elseif((conditionedSpectrogram(z-1)+conditonedSpectrogram(z)+conditionspectrogram(z+1))/3 >= 5)
+    elseif((conditionedSpectrogram(900-1)+conditionedSpectrogram(900)+conditionedSpectrogram(900+1))/3 >= 5)
         confidenceScore = confidenceScore + 30;
     else(confidenceScore >= 60)
             detected = 1;
