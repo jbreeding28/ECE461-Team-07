@@ -10,10 +10,15 @@ ourSystem = DroneSystem(configSettings_alternate);
 c = configSettings_alternate.constants;
 
 % load test audio in
-[audio1, Fs] = audioread('from4to1_01.wav');
-[audio2, Fs] = audioread('from4to1_02.wav');
-[audio3, Fs] = audioread('from4to1_03.wav');
-[audio4, Fs] = audioread('from4to1_04.wav');
+[audio1, Fs] = audioread('from2to3_01.wav');
+[audio2, Fs] = audioread('from2to3_02.wav');
+[audio3, Fs] = audioread('from2to3_03.wav');
+[audio4, Fs] = audioread('from2to3_04.wav');
+
+audio1 = rotorPass(audio1,Fs);
+audio2 = rotorPass(audio2,Fs);
+audio3 = rotorPass(audio3,Fs);
+audio4 = rotorPass(audio4,Fs);
 
 % the audio is in one long vector, and we want it to be broken into frames
 % that we can put into the system one-by-one. The frameSegment() function
