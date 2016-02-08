@@ -17,7 +17,7 @@ classdef DroneSystem
     methods
         function DS = DroneSystem(configSettings)
             DS.c = configSettings.constants;
-            Ds.localizer = Localizer;
+            DS.localizer = Localizer;
             
             % initialize one detector for each channel
             for i = 1:DS.c.NUM_CHANNELS
@@ -103,22 +103,22 @@ classdef DroneSystem
 %         end
   
         function localizerTest(DS,Af)
-            A = zeros(1,DS.c.NUM_CHANNELS);
-            for i = 1:DS.c.NUM_CHANNELS
-                DS.detectors(i) = Detector(configSettings);
-                DS.detectors(i).step(Af(:,i));
-                A(i) = DS.detectors(i).dronePresent(DS.detectors(i).previousSpectrum);
-            end
-            
-%             A1 = sum(abs(Af1(1)));
-%             A2 = sum(abs(Af2(1)));
-%             A3 = sum(abs(Af3(1)));
-%             A4 = sum(abs(Af4(1)));
-            mval = max(A);
-            A1 = A(1)/mval;
-            A2 = A(2)/mval;
-            A3 = A(3)/mval;
-            A4 = A(4)/mval;
+           % A = zeros(1,DS.c.NUM_CHANNELS);
+%             for i = 1:DS.c.NUM_CHANNELS
+%                 %DS.detectors(i) = Detector(configSettings);
+%                 DS.detectors(i).step(Af(:,i));
+%                 A(i) = DS.detectors(i).dronePresent(DS.detectors(i).previousSpectrum);
+%             end
+            A1 = sum(abs(Af(:,1)));
+            A2 = sum(abs(Af(:,2)));
+            A3 = sum(abs(Af(:,3)));
+            A4 = sum(abs(Af(:,4)));
+
+            mval = max([A1 A2 A3 A4]);
+            A1 = A1/mval;
+            A2 = A2/mval;
+            A3 = A3/mval;
+            A4 = A4/mval;
             DS.localizer.direction(A1,A2,A3,A4);
         end
         

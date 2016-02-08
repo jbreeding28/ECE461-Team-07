@@ -2,7 +2,7 @@ clear
 % a script for testing the detector
 
 % load the configuration file
-load('configSettings_LaptopSetup.mat')
+load('configSettings_LaptopSetup4Channel.mat')
 
 % create an instance of the system, and store it in a variable called
 % 'system1'
@@ -10,10 +10,10 @@ ourSystem = DroneSystem(configSettings_alternate);
 c = configSettings_alternate.constants;
 
 % load test audio in
-[audio1, Fs] = audioread('from1to2_01.wav');
-[audio2, Fs] = audioread('from1to2_02.wav');
-[audio3, Fs] = audioread('from1to2_03.wav');
-[audio4, Fs] = audioread('from1to2_04.wav');
+[audio1, Fs] = audioread('from4to1_01.wav');
+[audio2, Fs] = audioread('from4to1_02.wav');
+[audio3, Fs] = audioread('from4to1_03.wav');
+[audio4, Fs] = audioread('from4to1_04.wav');
 
 % the audio is in one long vector, and we want it to be broken into frames
 % that we can put into the system one-by-one. The frameSegment() function

@@ -8,7 +8,7 @@ classdef Localizer
     methods
         function L = Localizer()
         end
-        function [] = direction(A1,A2,A3,A4)
+        function direction(L,A1,A2,A3,A4)
             %Input 4 amplitudes (representing the peak magnitude recieved at each mic)
             %  Output: Text describing the direction of the source
             A = [A1 A2 A3 A4];
