@@ -165,14 +165,15 @@ classdef Detector < handle
             minimumLag = floor(1/hi_f*D.c.Fs);
             
             % compute autocorrelation
-            autoCor = step(D.autoCorrelator,D.bufferedAudio);
+            correlationAudio = rotorPass(D.bufferedAudio(1:4096),D.c.Fs);
+            autoCor = step(D.autoCorrelator,correlationAudio);
             
             autoCor(1:minimumLag) = 0;
             harmonicLag = find(autoCor == max(autoCor));
             f0 = (harmonicLag/D.c.Fs)^-1;
             appearsPeriodic = 0;
             if(autoCor(harmonicLag) > ...
-                    1.5*mean(autoCor((minimumLag+1):length(autoCor))))
+                    3*mean(autoCor((minimumLag+1):length(autoCor))))
                 appearsPeriodic = 1;
             end
         end
