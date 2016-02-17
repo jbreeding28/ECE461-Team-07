@@ -131,7 +131,10 @@ classdef Detector < handle
         %   This method should be used only if the input signal appears to
         %   be oscillatory.
             
-            % [harmRatio, f0] = feature_harmonic(D.bufferedAudio,D.c.Fs);
+            % MINIMAL FEATURES SETUP:
+            
+            % use this down the road
+            % [f0, harmonic] = D.periodicity();
             
             [f0, harmonic] = D.periodicity();
             
@@ -141,6 +144,32 @@ classdef Detector < handle
             end
             
             amplitude = D.signalStrengthEstimate(f0,3,spectrum);
+            
+            % LARGER FEATURE SET SETUP:
+            
+            % check to see if there is characteristic hi freq activity
+%             if(D.hiFreqActivity(spectrum))
+%                 amplitude = D.signalStrengthEstimate();
+%                 return;
+%             end
+            
+            currentWindow = D.bufferedAudio(1:D.c.WINDOW_SIZE);
+            
+            % otherwise, check for low frequency stuff
+%             [harmRatio, f0] = feature_harmonic(currentWindow,D.c.Fs);
+%             if(f0 > 80 && f0 < 225)
+%                 if(feature_zcr(currentWindow)>0.1)
+%                     if(D.spectralFlux(spectrum)<0.0003)
+%                         amplitude = D.signalStrengthEstimate(f0,3,spectrum);
+%                         return;
+%                     end
+%                 end
+%                 amplitude = 0;
+%                 return
+%             else
+%                 amplitude = 0;
+%                 return;
+%             end 
 
         end
         
@@ -172,8 +201,11 @@ classdef Detector < handle
             harmonicLag = find(autoCor == max(autoCor));
             f0 = (harmonicLag/D.c.Fs)^-1;
             appearsPeriodic = 0;
-            if(autoCor(harmonicLag) > ...
-                    3*mean(autoCor((minimumLag+1):length(autoCor))))
+%              if(autoCor(harmonicLag) > ...
+%                      3*mean(autoCor((minimumLag+1):length(autoCor))))
+%                  appearsPeriodic = 1;
+%              end
+            if(f0 < 200 && f0 > 80)
                 appearsPeriodic = 1;
             end
         end

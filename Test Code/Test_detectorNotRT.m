@@ -181,7 +181,7 @@ title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
 subplot(2,1,2)
-hist(cell2mat(decisions),4)
+hist(cell2mat(decisions),4);
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])

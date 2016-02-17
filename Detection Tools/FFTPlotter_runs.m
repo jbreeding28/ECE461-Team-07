@@ -5,7 +5,7 @@ FFTPlotter.plotContact8_spec('4 3-Audio-1, speech.wav')
 figure
 FFTPlotter.plotContact8_spec('9 6-Audio, steady whistling.wav')
 figure
-FFTPlotter.plotContact8_spec('4 3-Audio-1, speech.wav')
+FFTPlotter.plotContact8_spec('4 3-Audio-1, background noise.wav')
 figure
 FFTPlotter.plotContact8_spec('4 3-Audio-1, footsteps.wav')
 figure

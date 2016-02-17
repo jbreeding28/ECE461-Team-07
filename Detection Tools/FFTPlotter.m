@@ -51,7 +51,8 @@ classdef FFTPlotter
                 F_AXIS = linspace(0,Fs/2,floor(WINDOW_SIZE/2)+1);
                 plot(F_AXIS,spectrum)
                 set(gca,'XScale','log','XLim',[100 Fs/2])
-                [HR, f0] = feature_harmonic(audioBuffer(:,1), Fs);
+                %[HR, f0] = feature_harmonic(audioBuffer(:,1), Fs);
+                [HR, f0] = feature_harmonic(audioBuffer(1:WINDOW_SIZE),Fs);
                 title([filename,' HR: ',num2str(HR),' f0: ',num2str(f0),' SF: ',...
                     num2str(spectralFlux(spectrum,lastSpectrum)),...
                     ' zcr: ', num2str(feature_zcr...
