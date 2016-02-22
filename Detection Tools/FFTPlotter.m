@@ -33,9 +33,10 @@ classdef FFTPlotter
             end
         end
         
-        function plotContact8_spec(filename)
+        function info = plotContact8_spec(filename)
             %this function simulates what happens inside the detector in
             %our system as well as calculating some other features
+            info = {filename};
             WINDOW_SIZE = 4096;
             [audio, Fs] = audioread(filename);
             audio = loStop(audio,Fs);
@@ -53,14 +54,14 @@ classdef FFTPlotter
                 set(gca,'XScale','log','XLim',[100 Fs/2])
                 %[HR, f0] = feature_harmonic(audioBuffer(:,1), Fs);
                 [HR, f0] = feature_harmonic(audioBuffer(1:WINDOW_SIZE),Fs);
-                title([filename,' HR: ',num2str(HR),' f0: ',num2str(f0),' SF: ',...
+                info{i} = ['HR: ',num2str(HR),' f0: ',num2str(f0),' SF: ',...
                     num2str(spectralFlux(spectrum,lastSpectrum)),...
                     ' zcr: ', num2str(feature_zcr...
-                    (audioBuffer(1:WINDOW_SIZE)))]);
+                    (audioBuffer(1:WINDOW_SIZE)))];
+                title([filename,' ',info{i}]);
                 audioBuffer = [audioFrameMatrix(:,i);...
                     audioBuffer(1:((8-1)*WINDOW_SIZE))];
                 lastSpectrum = spectrum;
-                
             end
         end
         
