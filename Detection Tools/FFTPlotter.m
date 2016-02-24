@@ -67,6 +67,7 @@ classdef FFTPlotter
         
         function playAudio(filename)
             [audio, Fs] = audioread(filename);
+            audio = loStop(audio,Fs);
             sound(audio,Fs);
         end
     end
