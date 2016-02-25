@@ -48,9 +48,9 @@ ylabel('Spectral energy')
 subplot(2,1,2)
 hist(cell2mat(decisions),4)
 
-if(~isempty(failedDecisionIndexes))
-    disp(['Failed weak signal test at indicies: ', num2str(failedDecisionIndexes)]);
-end
+% if(~isempty(failedDecisionIndexes))
+%     disp(['Failed weak signal test at indicies: ', num2str(failedDecisionIndexes)]);
+% end
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
 disp('--');
@@ -159,6 +159,40 @@ filename = 'from1to2_01.wav';
 [audio, Fs] = audioread(filename);
 % extract a loud snippet (drone is right overhead)
 audio = audio(2.455e05:8.8e05);
+audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
+
+decisions = cell(size(audioFrameMatrix,2),1);
+fluxes = zeros(1,size(audioFrameMatrix,2));
+energies = zeros(1,size(audioFrameMatrix,2));
+for i = 1:size(audioFrameMatrix,2)
+    [decisions(i),fluxes(i),energies(i)] = system1.test(audioFrameMatrix(:,i));
+end
+
+% remove edge effects due to the smoothing filter 
+energies = energies(c.TIME_SMOOTHING_LENGTH:length(energies));
+fluxes = fluxes(c.TIME_SMOOTHING_LENGTH:length(fluxes));
+decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
+
+% generate a feature space plot
+figure;
+subplot(2,1,1)
+plot(fluxes,energies,'o')
+title(testname)
+xlabel('Normalized spectral flux')
+ylabel('Spectral energy')
+subplot(2,1,2)
+hist(cell2mat(decisions),4);
+
+disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
+disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
+disp('--')
+
+%% Drone test(s)
+testname = 'test for faint drone';
+disp(testname)
+filename = '7 4-Audio, about 60 feet-1.wav';
+[audio, Fs] = audioread(filename);
+
 audioFrameMatrix = frameSegment(audio,c.FRAME_SIZE);
 
 decisions = cell(size(audioFrameMatrix,2),1);

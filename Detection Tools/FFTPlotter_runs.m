@@ -1,24 +1,48 @@
 %% Our recordings
 % Focusrite setup
-clear
-FFTPlotter.plotContact8_spec('4 3-Audio-1, speech.wav');
-figure
-FFTPlotter.plotContact8_spec('9 6-Audio, steady whistling.wav');
-figure
-FFTPlotter.plotContact8_spec('4 3-Audio-1, background noise.wav');
-figure
-FFTPlotter.plotContact8_spec('4 3-Audio-1, footsteps.wav');
-figure
-FFTPlotter.plotContact8_spec('10 3-Audio-1,faint drone.wav');
-figure
-FFTPlotter.plotContact8_spec('0005 3-Audio, go cart.wav');
-figure
-FFTPlotter.plotContact8_spec('7 4-Audio, about 60 feet-1.wav');
-figure
-FFTPlotter.plotContact8_spec('7 5-Audio, about 60 feet-1.wav');
-figure
-FFTPlotter.plotContact8_spec('7 6-Audio, about 100 feet-1.wav');
-figure
+filenames_pos = {...
+    '9 6-Audio, steady whistling.wav',...
+    '10 3-Audio-1,faint drone.wav',...
+    '7 4-Audio, about 60 feet-1.wav',...
+    '7 5-Audio, about 60 feet-1.wav'...
+    '7 6-Audio, about 100 feet-1.wav'};
+filenames_neg = {...
+    '4 3-Audio-1, speech.wav',...
+    '0005 3-Audio, go cart.wav'};
+
+figure;
+featData_pos = table;
+for i = 1:length(filenames_pos)
+    temp = FFTPlotter.fullLengthFeatureGen(filenames_pos{i});
+    featData_pos = [featData_pos; temp];
+end
+
+figure;
+featData_neg = table;
+for i = 1:length(filenames_neg)
+    temp = FFTPlotter.fullLengthFeatureGen(filenames_neg{i});
+    featData_neg = [featData_neg; temp];
+end
+
+% format for support vector machine (SVM)
+yTrain = [ones(size(featData_pos,1),1);-1*ones(size(featData_neg,1),1)];
+xTrain = [table2array(featData_pos);table2array(featData_neg)];
+
+net = svm(4,'rbf',[5],10);
+net = svmtrain(net, xTrain, yTrain);
+
+xTest_neg = table2array(FFTPlotter.fullLengthFeatureGen(...
+    '6 3-Audio, Driveby.wav'));
+yTest_neg = svmfwd(net,xTest_neg);
+
+xTest_pos = table2array(FFTPlotter.fullLengthFeatureGen(...
+    '7 3-Audio, Takeoff-1.wav'));
+yTest_pos = svmfwd(net,xTest_pos);
+
+% failedInd = find(yTest_svmoutput~=yTest);
+% incorrectValues = yTest_svmoutput(failedInd);
+% numFalsePos = length(find(incorrectValues==1));
+% numFalseNeg = length(find(incorrectValues==-1));
 
 % A high altitude recording would probably be helpful
 
@@ -47,12 +71,9 @@ figure
 filenames = {'4 3-Audio-1, speech.wav',...
     '9 6-Audio, steady whistling.wav','4 3-Audio-1, background noise.wav'};
 info = cell(1,length(filenames));
-for i = 1:length(filenames)
-    info{1,i} = FFTPlotter.plotContact8_spec(filenames{i});
-    %print('-dbmp256','testPrint');
-end
-letters = {'A','B','C'};
-for fileNum = 1:length(filenames)
-    filedata = info{fileNum};
-    xlswrite('Features.xls',filedata',letters(fileNum));
-end
+
+% letters = {'A','B','C'};
+% for fileNum = 1:length(filenames)
+%     filedata = info{fileNum};
+%     xlswrite('Features.xls',filedata',letters(fileNum));
+% end
