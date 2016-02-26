@@ -1,4 +1,7 @@
-%% Our recordings
+%% Plots
+FFTPlotter.plotContact8_spec('7 5-Audio, about 60 feet-1.wav');
+
+%% SVM using our recordings
 % Focusrite setup
 filenames_pos = {...
     '9 6-Audio, steady whistling.wav',...

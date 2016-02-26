@@ -113,6 +113,13 @@ classdef FFTPlotter
             sound(audio,Fs);
         end
         
+        function autoCor = timeDomainAutoCorrelation(filename)
+            [audio,Fs] = audioread(filename);
+            autoCor = xcorr(audio);
+            autoCor = autoCor(floor(length(autoCor)/2+1):length(autoCor));
+            tlag = linspace(0,length(autoCor)/Fs,length(autoCor));
+            plot(tlag,autoCor);
+        end
     end
     
 end
