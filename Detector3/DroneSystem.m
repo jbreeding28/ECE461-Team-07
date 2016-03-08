@@ -55,7 +55,8 @@ classdef DroneSystem
                     end
                     stringOutput = [decisions{i}, ' E: ', ...
                         num2str(DS.detectors(i).getEnergy()), ' F: ', ...
-                        num2str(DS.detectors(i).getFlux())];
+                        num2str(DS.detectors(i).getFlux()), ' f0: ', ...
+                        num2str(DS.detectors(i).getf0())];
                     set(hTextBox(i),'String',stringOutput);
                 end
                 energies = [DS.detectors(1).getEnergy; energies(1:(length(energies)-1))];

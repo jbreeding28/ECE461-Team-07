@@ -14,6 +14,7 @@ classdef Detector < handle
         currentFlux;
         currentDroneAmplitude;
         autoCorrelator;
+        currentf0;
     end
     
     methods
@@ -56,9 +57,11 @@ classdef Detector < handle
             % feature calculation
             D.currentEnergy = D.spectralEnergy(spectrum);
             D.currentFlux = D.spectralFlux(spectrum);
+            D.currentf0 = D.periodicity();
             
             % decision
-            decision = D.makeDecision(D.currentEnergy,D.currentFlux,spectrum);
+            decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
+                D.currentf0,spectrum);
             
             D.previousSpectrum = spectrum;
             
@@ -93,7 +96,7 @@ classdef Detector < handle
             energy = sum(spectrum.^2);
         end
         
-        function output = makeDecision(D,energy,flux,spectrum)
+        function output = makeDecision(D,energy,flux,f0,spectrum)
         %MAKEDECISION attempts to determine what kind of signal is present
         %   This method tries to determine which category the input signal
         %   fits into. The categories are (1) 'weak', (2) 'highly
@@ -114,24 +117,24 @@ classdef Detector < handle
                 return;
             end
             
-            % if we reach here, a drone must be present
+            % if we reach here, an oscillator must be present
             
-            amplitude = D.dronePresent(spectrum);
-            D.currentDroneAmplitude = amplitude;
-            
-            if(amplitude==0)
+            if(f0 < 80 || f0 > 220)
                 output = 'non-drone oscillator signal';
                 return;
             end
             
             output = 'drone signal';
+            amplitude = D.signalStrengthEstimate(f0,3,spectrum);
+            D.currentDroneAmplitude = amplitude;
             
         end
         
         function amplitude = dronePresent(D,spectrum)
         %DRONEPRESENT determine if the signal coming in is from a drone
         %   This method should be used only if the input signal appears to
-        %   be oscillatory.
+        %   be oscillatory.  An amplitude of zero will be returned if the
+        %   signal does not appear to be a drone.
             
             % MINIMAL FEATURES SETUP:
             
@@ -183,32 +186,36 @@ classdef Detector < handle
             flux = D.currentFlux;
         end
         
+        function f0 = getf0(D)
+            f0 = D.currentf0;
+        end
+        
         function lastSpectrum = getPreviousSpectrum(D)
            lastSpectrum = D.previousSpectrum; 
         end
         
-        function [f0, appearsPeriodic] = periodicity(D)
+        function [f0, appearsDronePeriodic] = periodicity(D)
             % define a frequency range
-            lo_f = 150;
+            lo_f = 130;
             hi_f = 400;
             
             maximumLag = floor(1/lo_f*D.c.Fs);
             minimumLag = floor(1/hi_f*D.c.Fs);
             
             % compute autocorrelation
-            correlationAudio = rotorPass(D.bufferedAudio(1:4096),D.c.Fs);
+            correlationAudio = rotorPass(D.bufferedAudio(1:D.c.WINDOW_SIZE),D.c.Fs);
             autoCor = step(D.autoCorrelator,correlationAudio);
             
             autoCor(1:minimumLag) = 0;
             harmonicLag = find(autoCor == max(autoCor));
             f0 = (harmonicLag/D.c.Fs)^-1;
-            appearsPeriodic = 0;
+            appearsDronePeriodic = 0;
 %              if(autoCor(harmonicLag) > ...
 %                      3*mean(autoCor((minimumLag+1):length(autoCor))))
 %                  appearsPeriodic = 1;
 %              end
-            if(f0 < 200 && f0 > 80)
-                appearsPeriodic = 1;
+            if(f0 < 220 && f0 > 80)
+                appearsDronePeriodic = 1;
             end
         end
         
