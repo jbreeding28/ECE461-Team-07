@@ -224,7 +224,7 @@ classdef Detector < handle
             f0_binNum = floor(f0/(D.c.Fs/D.c.WINDOW_SIZE));
             for i = 1:numHarmonics
                 for j = -2:2
-                    amplitudeSum = amplitudeSum+spectrum(i*f0_binNum+j);
+                    amplitudeSum = amplitudeSum + spectrum(i*f0_binNum+j);
                 end
             end
         end

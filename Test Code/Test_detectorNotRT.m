@@ -7,7 +7,7 @@
 % (4) is a drone oscillator
 
 %% get the system running
-% load('Detector3\configSettings_LaptopSetup.mat')
+load('Detector3\configSettings_LaptopSetup.mat')
 % c, a struct, will hold the constants
 c = configSettings_alternate.constants;
 
