@@ -1,4 +1,4 @@
-clear
+% clear
 %% INFO
 
 % (1) is weak signal
@@ -7,7 +7,7 @@ clear
 % (4) is a drone oscillator
 
 %% get the system running
-load('Detector3\configSettings_LaptopSetup.mat')
+% load('Detector3\configSettings_LaptopSetup.mat')
 % c, a struct, will hold the constants
 c = configSettings_alternate.constants;
 
@@ -42,6 +42,9 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
@@ -78,6 +81,9 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
@@ -110,6 +116,9 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
@@ -142,6 +151,9 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
@@ -177,6 +189,9 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
@@ -211,11 +226,16 @@ decisions = decisions(c.TIME_SMOOTHING_LENGTH:length(decisions));
 figure;
 subplot(2,1,1)
 plot(fluxes,energies,'o')
+line([0,1.5*max(energies)/...
+    configSettings_alternate.constants.DECISION_SLOPE],...
+    [0,1.5*max(energies)])
 title(testname)
 xlabel('Normalized spectral flux')
 ylabel('Spectral energy')
 subplot(2,1,2)
 hist(cell2mat(decisions),4);
+
+% allDecisionData = [cell2mat(decisions), energies', fluxes'];
 
 disp(['mean/max energy: ', num2str(mean(energies)),'/', num2str(max(energies))])
 disp(['mean/max flux: ', num2str(mean(fluxes)),'/', num2str(max(fluxes))])
