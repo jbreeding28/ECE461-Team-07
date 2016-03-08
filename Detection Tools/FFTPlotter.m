@@ -120,6 +120,32 @@ classdef FFTPlotter
             tlag = linspace(0,length(autoCor)/Fs,length(autoCor));
             plot(tlag,autoCor);
         end
+        
+        function psd(filename)
+            WINDOW_SIZE = 4096;
+            [audio,Fs] = audioread(filename);
+            audioFrameMatrix = frameSegment(audio,WINDOW_SIZE);
+            pwelch(audioFrameMatrix);
+        end
+        
+        function fftOverlay(filename,option)
+            WINDOW_SIZE = 4096;
+            [audio,Fs] = audioread(filename);
+            audioFrameMatrix = frameSegment(audio,WINDOW_SIZE);
+            ft = abs(fft(audioFrameMatrix,[],1));
+            ft = ft(1:WINDOW_SIZE/2,:);
+            if(nargin>1)
+                while(size(ft,2)>10)
+                    figure;
+                    plot(linspace(0,22050,2048),ft(:,1:10));
+                    ft = ft(:,11:size(ft,2));
+                    set(gca,'XScale','linear','Xlim',[100 20000]);
+                end
+            else
+                plot(linspace(0,22050,2048),ft);
+            end
+            
+        end
     end
     
 end

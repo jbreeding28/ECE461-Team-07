@@ -114,6 +114,8 @@ classdef Detector < handle
                 return;
             end
             
+            % if we reach here, a drone must be present
+            
             amplitude = D.dronePresent(spectrum);
             D.currentDroneAmplitude = amplitude;
             
