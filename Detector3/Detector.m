@@ -12,9 +12,10 @@ classdef Detector < handle
         previousSpectrum;
         currentEnergy;
         currentFlux;
+        currentf0;
+        currentHarmonicPeak;
         currentDroneAmplitude;
         autoCorrelator;
-        currentf0;
     end
     
     methods
@@ -59,9 +60,16 @@ classdef Detector < handle
             D.currentFlux = D.spectralFlux(spectrum);
             D.currentf0 = D.periodicity();
             
-            % decision
-            decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
-                D.currentf0,spectrum);
+            % decision(s)
+%             decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
+%                 D.currentf0,spectrum);
+            
+            decBoolean = hardprocesspeaksv2(spectrum);
+            if(decBoolean)
+                decision = 'drone';
+            else
+                decision = 'non-drone';
+            end
             
             D.previousSpectrum = spectrum;
             
@@ -130,53 +138,53 @@ classdef Detector < handle
             
         end
         
-        function amplitude = dronePresent(D,spectrum)
-        %DRONEPRESENT determine if the signal coming in is from a drone
-        %   This method should be used only if the input signal appears to
-        %   be oscillatory.  An amplitude of zero will be returned if the
-        %   signal does not appear to be a drone.
-            
-            % MINIMAL FEATURES SETUP:
-            
-            % use this down the road
-            % [f0, harmonic] = D.periodicity();
-            
-            [f0, harmonic] = D.periodicity();
-            
-            if(~harmonic)
-                amplitude = 0;
-                return;
-            end
-            
-            amplitude = D.signalStrengthEstimate(f0,3,spectrum);
-            
-            % LARGER FEATURE SET SETUP:
-            
-            % check to see if there is characteristic hi freq activity
-%             if(D.hiFreqActivity(spectrum))
-%                 amplitude = D.signalStrengthEstimate();
+%         function amplitude = dronePresent(D,spectrum)
+%         %DRONEPRESENT determine if the signal coming in is from a drone
+%         %   This method should be used only if the input signal appears to
+%         %   be oscillatory.  An amplitude of zero will be returned if the
+%         %   signal does not appear to be a drone.
+%             
+%             % MINIMAL FEATURES SETUP:
+%             
+%             % use this down the road
+%             % [f0, harmonic] = D.periodicity();
+%             
+%             [f0, harmonic] = D.periodicity();
+%             
+%             if(~harmonic)
+%                 amplitude = 0;
 %                 return;
 %             end
-            
-            currentWindow = D.bufferedAudio(1:D.c.WINDOW_SIZE);
-            
-            % otherwise, check for low frequency stuff
-%             [harmRatio, f0] = feature_harmonic(currentWindow,D.c.Fs);
-%             if(f0 > 80 && f0 < 225)
-%                 if(feature_zcr(currentWindow)>0.1)
-%                     if(D.spectralFlux(spectrum)<0.0003)
-%                         amplitude = D.signalStrengthEstimate(f0,3,spectrum);
-%                         return;
-%                     end
-%                 end
-%                 amplitude = 0;
-%                 return
-%             else
-%                 amplitude = 0;
-%                 return;
-%             end 
-
-        end
+%             
+%             amplitude = D.signalStrengthEstimate(f0,3,spectrum);
+%             
+%             % LARGER FEATURE SET SETUP:
+%             
+%             % check to see if there is characteristic hi freq activity
+% %             if(D.hiFreqActivity(spectrum))
+% %                 amplitude = D.signalStrengthEstimate();
+% %                 return;
+% %             end
+%             
+%             currentWindow = D.bufferedAudio(1:D.c.WINDOW_SIZE);
+%             
+%             % otherwise, check for low frequency stuff
+% %             [harmRatio, f0] = feature_harmonic(currentWindow,D.c.Fs);
+% %             if(f0 > 80 && f0 < 225)
+% %                 if(feature_zcr(currentWindow)>0.1)
+% %                     if(D.spectralFlux(spectrum)<0.0003)
+% %                         amplitude = D.signalStrengthEstimate(f0,3,spectrum);
+% %                         return;
+% %                     end
+% %                 end
+% %                 amplitude = 0;
+% %                 return
+% %             else
+% %                 amplitude = 0;
+% %                 return;
+% %             end 
+% 
+%         end
         
         function energy = getEnergy(D)
             energy = D.currentEnergy;
@@ -208,7 +216,7 @@ classdef Detector < handle
             
             autoCor(1:minimumLag) = 0;
             harmonicLag = find(autoCor == max(autoCor));
-            f0 = (harmonicLag/D.c.Fs)^-1;
+            f0 = (harmonicLag/D.c.Fs).^-1;
             appearsDronePeriodic = 0;
 %              if(autoCor(harmonicLag) > ...
 %                      3*mean(autoCor((minimumLag+1):length(autoCor))))

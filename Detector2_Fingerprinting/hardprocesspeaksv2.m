@@ -9,7 +9,7 @@ function dronepresence = specificfreqdet(conditionedspectrum)
     %to what essentially being noise in the lower range having a greater
     %value then the signal in the upper ranges
     ReducedSpectrumMiddle = conditionedspectrum(400:1000);
-    ReducedSpectrumHigh = conditionedspectrum(1001:length(spectrum));
+    ReducedSpectrumHigh = conditionedspectrum(1001:length(conditionedspectrum));
     AveMiddle = mean(ReducedSpectrumMiddle);
     AveHigh = mean(ReducedSpectrumHigh);  
     [peakLocMiddle, peakMagMiddle] = peakfinder(ReducedSpectrumMiddle, AveMiddle/4, 1.8*AveMiddle, 1, false, false);

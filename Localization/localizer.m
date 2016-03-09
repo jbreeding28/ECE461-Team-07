@@ -12,6 +12,10 @@ classdef Localizer
             %Input 4 amplitudes (representing the peak magnitude recieved at each mic)
             %  Output: Text describing the direction of the source
             A = [A1 A2 A3 A4];
+            if (A1==0&&A2==0&&A3==0&&A4==0)
+                fprintf('No drone detected\n')
+                return;
+            end
             [max1, I1] = max(A);
             A(I1) = [-50];
             [max2, I2] = max(A);
