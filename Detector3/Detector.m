@@ -61,15 +61,16 @@ classdef Detector < handle
             D.currentf0 = D.periodicity();
             
             % decision(s)
-%             decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
-%                 D.currentf0,spectrum);
+            decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
+                D.currentf0,spectrum);
             
-            decBoolean = hardprocesspeaksv2(spectrum);
-            if(decBoolean)
-                decision = 'drone';
-            else
-                decision = 'non-drone';
-            end
+%             [decBoolean amplitudeNow] = hardprocesspeaksv2(spectrum);
+%             D.currentDroneAmplitude = amplitudeNow;
+%             if(decBoolean)
+%                 decision = 'drone';
+%             else
+%                 decision = 'non-drone';
+%             end
             
             D.previousSpectrum = spectrum;
             
