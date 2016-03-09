@@ -8,8 +8,8 @@ function dronepresence = specificfreqdet(conditionedspectrum)
     %peaks in each section based on that sections noise floor, this is due
     %to what essentially being noise in the lower range having a greater
     %value then the signal in the upper ranges
-    ReducedSpectrumMiddle = spectrum(400:1000);
-    ReducedSpectrumHigh = spectrum(1001:length(spectrum));
+    ReducedSpectrumMiddle = conditionedspectrum(400:1000);
+    ReducedSpectrumHigh = conditionedspectrum(1001:length(spectrum));
     AveMiddle = mean(ReducedSpectrumMiddle);
     AveHigh = mean(ReducedSpectrumHigh);  
     [peakLocMiddle, peakMagMiddle] = peakfinder(ReducedSpectrumMiddle, AveMiddle/4, 1.8*AveMiddle, 1, false, false);
@@ -32,7 +32,7 @@ function dronepresence = specificfreqdet(conditionedspectrum)
     DroneScore = Droneat4 + Droneat17 + Droneat19;
     if(DroneScore >= 3)
         detected = 1;
-        disp('Drone detected');
+        disp('Drone Detected');
     else
         detected = 0;
         disp('No Drone Detected');
