@@ -13,13 +13,12 @@ textpos=[15 230; 241 450; 453 230; 237 12];
 text={'W','S','E','N'}; boxcolor={'white','white','white','white'};
 bckgrnd = insertText(bckgrnd,textpos,text,'FontSize',30,'BoxColor',...
     boxcolor,'BoxOpacity',0);
-imshow(bckgrnd);
+imwrite(bckgrnd,'bckgrnd.png');
+%imshow(bckgrnd);
 
 %initialize different zones
-Nzone=zeros(501,501,3); Ezone=Nzone; Szone=Nzone; Wzone=Nzone;
-NEzone=Nzone; SEzone=Nzone; SWzone=Nzone; NWzone=Nzone;
-% Nzone=image;  Ezone=image;  Szone=image;  Wzone=image;
-% NEzone=image; SEzone=image; SWzone=image; NWzone=image;
+NNEzone=zeros(501,501,3); ENEzone=NNEzone; ESEzone=NNEzone; SSEzone=NNEzone;
+SSWzone=NNEzone; WSWzone=NNEzone; WNWzone=NNEzone; NNWzone=NNEzone;
 
 %create the different zones
 for i=1:501 %columns
@@ -30,26 +29,30 @@ for i=1:501 %columns
         if dist < 200 %if the point is inside the circle
             theta=atan2(deltay,deltax);
             %classification based on theta
-            if abs(theta) <= pi./8
-                Ezone(i,j,1:3) = [1,1,0];
-            elseif abs(theta) >= 7.*pi./8
-                Wzone(i,j,1:3) = [1,1,0];
-            elseif (theta > pi./8) && (theta < 3.*pi./8)
-                NEzone(i,j,1:3) = [1,1,0];
-            elseif (theta >= 3.*pi./8) && (theta <= 5.*pi./8)
-                Nzone(i,j,1:3) = [1,1,0];
-            elseif (theta > 5.*pi./8) && (theta < 7.*pi./8)
-                NWzone(i,j,1:3) = [1,1,0];
-            elseif (theta < -pi./8) && (theta > -3.*pi./8)
-                SEzone(i,j,1:3) = [1,1,0];
-            elseif (theta <= -3.*pi./8) && (theta <= -5.*pi./8)
-                SWzone(i,j,1:3) = [1,1,0];
-            else %if (theta < -5.*pi./8) && (theta > -7.*pi./8)
-                Szone(i,j,1:3) = [1,1,0];
+            if (theta>=0) && (theta < pi./4)
+                ENEzone(i,j,1:3) = [1,1,0];
+            elseif (theta >= pi./4) && (theta < pi./2)
+                NNEzone(i,j,1:3) = [1,1,0];
+            elseif (theta >= pi./2) && (theta < 3.*pi./4)
+                NNWzone(i,j,1:3) = [1,1,0];
+            elseif (theta >= 3.*pi./4) && (theta <= pi)
+                WNWzone(i,j,1:3) = [1,1,0];
+            elseif (theta <= 0) && (theta > -pi./4)
+                ESEzone(i,j,1:3) = [1,1,0];
+            elseif (theta <= -pi./4) && (theta > -pi./2)
+                SSEzone(i,j,1:3) = [1,1,0];
+            elseif (theta <= -pi./2) && (theta > -3.*pi./4)
+                SSWzone(i,j,1:3) = [1,1,0];
+            elseif (theta <= -3.*pi./4) && (theta > -pi)
+                WSWzone(i,j,1:3) = [1,1,0];
             end
         end
     end
 end
+imwrite(NNEzone,'NNEzone.png'); imwrite(ENEzone,'ENEzone.png');
+imwrite(NNWzone,'NNWzone.png'); imwrite(WNWzone,'WNWzone.png');
+imwrite(SSEzone,'SSEzone.png'); imwrite(ESEzone,'ESEzone.png');
+imwrite(SSWzone,'SSWzone.png'); imwrite(WSWzone,'WSWzone.png');
 
 %consider generating background image in seperate file to save space
 %consider generating zones in seperate file to save space
