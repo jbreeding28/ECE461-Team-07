@@ -75,12 +75,13 @@ classdef DroneSystem
                 
                 % if there is a complete setup, run the localizer
                 if(DS.c.NUM_CHANNELS==4)
-                   [location A] = DS.localizer.direction(amplitudes(1),amplitudes(2),...
+                   [location, A] = DS.localizer.direction(amplitudes(1),amplitudes(2),...
                         amplitudes(3),amplitudes(4));
                 end
                 locationBuffer(2:end) = locationBuffer(1:end-1);
                 locationBuffer(1) = location;
-                display2(locationBuffer,A,background,NNE,ENE,ESE,SSE,SSW,WSW,WNW,NNW);
+                display2(locationBuffer,A,background,NNEzone,ENEzone,...
+                    ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
             end
         end
         
