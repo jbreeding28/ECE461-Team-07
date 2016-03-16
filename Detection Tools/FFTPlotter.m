@@ -104,7 +104,8 @@ classdef FFTPlotter
                     audioBuffer(1:((8-1)*WINDOW_SIZE))];
                 lastSpectrum = spectrum;
             end
-            features = table(f0',HR',SF',ZCR');
+            % features = table(f0',HR',SF',ZCR');
+            features = [(f0(2:8))',(SF(2:8))'];
         end
         
         function features = fullLengthFeatureGen(filename)
