@@ -80,7 +80,7 @@ classdef DroneSystem
                 end
                 locationBuffer(2:end) = locationBuffer(1:end-1);
                 locationBuffer(1) = location;
-                display2(locationBuffer,A,background,NNEzone,ENEzone,...
+                DS.localizer.display2(locationBuffer,A,background,NNEzone,ENEzone,...
                     ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
             end
         end
