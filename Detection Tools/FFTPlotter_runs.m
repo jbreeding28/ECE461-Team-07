@@ -1,5 +1,5 @@
 %% Plots
-FFTPlotter.plotContact8_spec('7 5-Audio, about 60 feet-1.wav');
+FFTPlotter.plotContact8_kNN('7 5-Audio, about 60 feet-1.wav');
 
 %% SVM using our recordings
 % Focusrite setup

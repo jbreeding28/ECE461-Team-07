@@ -69,6 +69,44 @@ classdef FFTPlotter
             features = table(f0',HR',SF',ZCR');
         end
         
+        function features = plotContact8_kNN(filename)
+            %this function simulates what happens inside the detector in
+            %our system as well as calculating some other features
+            WINDOW_SIZE = 4096;
+            [audio, Fs] = audioread(filename);
+            audio = loStop(audio,Fs);
+            audioBuffer = audio(1:(8*WINDOW_SIZE));
+            audio = audio((8*WINDOW_SIZE+1):length(audio));
+            audioFrameMatrix = frameSegment(audio,WINDOW_SIZE);
+            lastSpectrum = zeros(WINDOW_SIZE/2+1,1);
+            for i = 1:8
+                subplot(4,2,i)
+                S = spectrogram(audioBuffer,WINDOW_SIZE);
+                S = filter2(1/8*ones(1,8),abs(S));
+                spectrum = abs(S(:,1));
+                F_AXIS = linspace(0,Fs/2,floor(WINDOW_SIZE/2)+1);
+                plot(F_AXIS,spectrum)
+                set(gca,'XScale','log','XLim',[100 Fs/2])
+                
+                % feature calculation
+                [lag, HR(i)] = FeatureCalculator.harmonicity(...
+                    audioBuffer(1:WINDOW_SIZE),40);
+                f0(i) = Fs/lag;
+                SF(i) = FeatureCalculator.spectralFlux(spectrum,...
+                    lastSpectrum);
+                ZCR(i) = feature_zcr(audioBuffer(1:WINDOW_SIZE));
+                
+                info{i} = ['HR: ',num2str(HR(i)),' f0: ',num2str(f0(i))...
+                    ,' SF: ',num2str(SF(i)),' zcr: ', num2str(ZCR(i)),...
+                    ' E: ', num2str(sum(spectrum.^2))];
+                title([filename,' ',info{i}]);
+                audioBuffer = [audioFrameMatrix(:,i);...
+                    audioBuffer(1:((8-1)*WINDOW_SIZE))];
+                lastSpectrum = spectrum;
+            end
+            features = table(f0',HR',SF',ZCR');
+        end
+        
         function features = fullLengthFeatureGen(filename)
             WINDOW_SIZE = 4096;
             [audio,Fs] = audioread(filename);
