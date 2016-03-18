@@ -133,14 +133,15 @@ classdef localizer
             end
             
             if zonecount(9) == len
-                textpos=[100 180]; boxcolor={'white'};
+                textpos=[87 130]; boxcolor={'white'};
                 text={'NO DRONE DETECTED'}; textcolor={'red'};
                 im=insertText(background,textpos,text,'FontSize',30,'BoxColor',...
                     boxcolor,'BoxOpacity',0,'TextColor',textcolor);
                 textpos=[327 180; 185 180; 185 322; 327 322];
-                text={amplitudes(1),amplitudes(2),amplitudes(3),amplitudes(4)};
+                text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
+                    num2str(amplitudes(3)),num2str(amplitudes(4))};
                 boxcolor={'white','white','white','white'};
-                im=insertText(background,textpos,text,'FontSize',12,'BoxColor',...
+                im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
                     boxcolor,'BoxOpacity',0);
             else
                 im=(zonecount(1).*ENE+zonecount(2).*NNE + ...
@@ -149,9 +150,10 @@ classdef localizer
                     zonecount(10).*C)./len;
                 im=imsubtract(background,im);
                 textpos=[327 180; 185 180; 185 322; 327 322];
-                text={amplitudes(1),amplitudes(2),amplitudes(3),amplitudes(4)};
+                text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
+                    num2str(amplitudes(3)),num2str(amplitudes(4))};
                 boxcolor={'white','white','white','white'};
-                im=insertText(background,textpos,text,'FontSize',12,'BoxColor',...
+                im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
                     boxcolor,'BoxOpacity',0);
             end
             imshow(im);
@@ -183,7 +185,7 @@ classdef localizer
             theta_offset=-22.5;%offset in degrees
             angles=angles.*45+theta_offset;
             
-            avg_angle = meanangle(angles);%localizer.meanangle() ?  
+            avg_angle = meanangle(angles);%localizer.meanangle() ?
             if avg_angle < 0
                 avg_angle = angle_val+360;
             end
