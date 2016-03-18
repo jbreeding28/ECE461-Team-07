@@ -44,7 +44,8 @@ classdef DroneSystem
             fluxes = zeros(10,1);
             spectra = zeros(10, DS.c.WINDOW_SIZE/2+1);
             amplitudes = zeros(1,DS.c.NUM_CHANNELS);
-            locationBuffer = zeroes(1,10);
+            raw_locationBuffer = zeroes(1,10);
+            avg_locations = zeroes(1,10);
             load('image_config.mat');
             
             % MAIN LOOP
@@ -78,9 +79,15 @@ classdef DroneSystem
                    [location, A] = DS.localizer.direction(amplitudes(1),amplitudes(2),...
                         amplitudes(3),amplitudes(4));
                 end
-                locationBuffer(2:end) = locationBuffer(1:end-1);
-                locationBuffer(1) = location;
-                DS.localizer.display2(locationBuffer,A,background,NNEzone,ENEzone,...
+                raw_locationBuffer(2:end) = raw_locationBuffer(1:end-1);
+                raw_locationBuffer(1) = location;
+                
+                points_to_avg=5;
+                avg_loc=averager(raw_locationBuffer(1:points_to_avg));
+                avg_locations(2:end)=avg_locations(1:end-1);
+                avg_locations(1)=avg_loc;
+                
+                DS.localizer.display2(avg_locations,A,background,NNEzone,ENEzone,...
                     ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
             end
         end

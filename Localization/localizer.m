@@ -41,56 +41,56 @@ classdef Localizer
                    
                 elseif I1 == 1 && I2 == 2
                    % fprintf('It is located NNE from the center\n');
-                   location = 1;
+                   location = 2;
                 end
                 if (I1 == 1 && I2 == 4) && (max1 == max2)
                    % fprintf('It is located E from the center\n');
                   
                 elseif I1 == 1 && I2 == 4
                    % fprintf('It is located ENE from the center\n');
-                   location = 2;
+                   location = 1;
                 end
                 if (I1 == 2 && I2 == 1) && (max1 == max2)
                    % fprintf('It is located N from the center\n');
                    
                 elseif I1 == 2 && I2 == 1
                    % fprintf('It is located NNW from the center\n');
-                   location = 8;
+                   location = 3;
                 end
                 if (I1 == 2 && I2 == 3) && (max1 == max2)
                    % fprintf('It is located W from the center\n');
                    
                 elseif I1 == 2 && I2 == 3
                   %  fprintf('It is located WNW from the center\n');
-                  location = 7;
+                  location = 4;
                 end
                 if (I1 == 3 && I2 == 2) && (max1 == max2)
                   %  fprintf('It is located W from the center\n');
                   
                 elseif I1 == 3 && I2 == 2
                   %  fprintf('It is located WSW from the center\n');
-                  location = 6;
+                  location = 5;
                 end
                 if (I1 == 3 && I2 == 4) && (max1 == max2)
                    % fprintf('It is located S from the center\n');
                    
                 elseif I1 == 3 && I2 == 4
                    % fprintf('It is located SSW from the center\n');
-                   location = 5;
+                   location = 6;
                 end
                 if (I1 == 4 && I2 == 3) && (max1 == max2)
                    % fprintf('It is located S from the center\n');
                    
                 elseif I1 == 4 && I2 == 3
                    % fprintf('It is located SSE from the center\n');
-                   location = 4;
+                   location = 7;
                 end
                 if (I1 == 4 && I2 == 1) && (max1 == max2)
                    % fprintf('It is located E from the center\n');
                    
                 elseif I1 == 4 && I2 == 1
                    % fprintf('It is located ESE from the center\n');
-                   location = 3;
+                   location = 8;
                 end
                 
             end
@@ -100,8 +100,8 @@ classdef Localizer
             %fprintf('Max = %f\nIndice: %i\n',max1,I1);
         end
         
-        function [] = display2(locations,amplitudes,background,NNE,ENE,...
-                ESE,SSE,SSW,WSW,WNW,NNW)
+        function [] = display2(locations,amplitudes,background,NNE,ENE,ESE,SSE,...
+                SSW,WSW,WNW,NNW)
             zonecount=zeros(1,9);
             len=sizeof(locations);
             for i=1:len
@@ -118,7 +118,7 @@ classdef Localizer
                     case 4 %SSE
                         zonecount(4)=zonecount(4)+1;
                     case 5 %SSW
-                        zonecount(5)=zonecount(9)+1;
+                        zonecount(5)=zonecount(5)+1;
                     case 6 %WSW
                         zonecount(6)=zonecount(6)+1;
                     case 7 %WNW

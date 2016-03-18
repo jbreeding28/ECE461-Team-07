@@ -19,6 +19,7 @@ imwrite(bckgrnd,'bckgrnd.png');
 %initialize different zones
 NNEzone=zeros(501,501,3); ENEzone=NNEzone; ESEzone=NNEzone; SSEzone=NNEzone;
 SSWzone=NNEzone; WSWzone=NNEzone; WNWzone=NNEzone; NNWzone=NNEzone;
+Czone=NNEzone;
 
 %create the different zones
 for i=1:501 %columns
@@ -26,7 +27,9 @@ for i=1:501 %columns
     for j=1:501 %rows
         deltax=j-251;
         dist=sqrt(deltay.^2+deltax.^2);
-        if dist < 200 %if the point is inside the circle
+        if dist < 30
+            Czone(i,j,1:3) = [1,1,0];
+        elseif dist < 200 %if the point is inside the circle
             theta=atan2(deltay,deltax);
             %classification based on theta
             if (theta>=0) && (theta < pi./4)
@@ -49,10 +52,10 @@ for i=1:501 %columns
         end
     end
 end
-imwrite(NNEzone,'NNEzone.png'); imwrite(ENEzone,'ENEzone.png');
-imwrite(NNWzone,'NNWzone.png'); imwrite(WNWzone,'WNWzone.png');
-imwrite(SSEzone,'SSEzone.png'); imwrite(ESEzone,'ESEzone.png');
-imwrite(SSWzone,'SSWzone.png'); imwrite(WSWzone,'WSWzone.png');
+% imwrite(NNEzone,'NNEzone.png'); imwrite(ENEzone,'ENEzone.png');
+% imwrite(NNWzone,'NNWzone.png'); imwrite(WNWzone,'WNWzone.png');
+% imwrite(SSEzone,'SSEzone.png'); imwrite(ESEzone,'ESEzone.png');
+% imwrite(SSWzone,'SSWzone.png'); imwrite(WSWzone,'WSWzone.png');
 
 %consider generating background image in seperate file to save space
 %consider generating zones in seperate file to save space
