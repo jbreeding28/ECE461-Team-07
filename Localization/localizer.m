@@ -175,7 +175,7 @@ classdef Localizer
             if (C_count == 0) && (len == 0)
                 zone_val = 0;
                 return;
-            elseif C_count >= len./2
+            elseif C_count >= len
                 zone_val = 9;
                 return;
             end
