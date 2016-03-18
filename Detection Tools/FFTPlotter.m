@@ -79,6 +79,9 @@ classdef FFTPlotter
             audio = audio((8*WINDOW_SIZE+1):length(audio));
             audioFrameMatrix = frameSegment(audio,WINDOW_SIZE);
             lastSpectrum = zeros(WINDOW_SIZE/2+1,1);
+            flatness_ignoreBelowFreq = 1500;
+            flatness_ignoreBelowBin = floor(flatness_ignoreBelowFreq/...
+                (Fs/(WINDOW_SIZE/2)));
             for i = 1:8
                 subplot(4,2,i)
                 S = spectrogram(audioBuffer,WINDOW_SIZE);
@@ -95,17 +98,19 @@ classdef FFTPlotter
                 SF(i) = FeatureCalculator.spectralFlux(spectrum,...
                     lastSpectrum);
                 ZCR(i) = feature_zcr(audioBuffer(1:WINDOW_SIZE));
-                
+                flatness_hifreq(i) = ...
+                    FeatureCalculator.flatness_hiFrequency...
+                    (spectrum,flatness_ignoreBelowBin);
                 info{i} = ['HR: ',num2str(HR(i)),' f0: ',num2str(f0(i))...
                     ,' SF: ',num2str(SF(i)),' zcr: ', num2str(ZCR(i)),...
-                    ' E: ', num2str(sum(spectrum.^2))];
+                    ' Fl: ', num2str(flatness_hifreq(i))];
                 title([filename,' ',info{i}]);
                 audioBuffer = [audioFrameMatrix(:,i);...
                     audioBuffer(1:((8-1)*WINDOW_SIZE))];
                 lastSpectrum = spectrum;
             end
             % features = table(f0',HR',SF',ZCR');
-            features = [(f0(2:8))',(SF(2:8))'];
+            features = [(f0(2:8))',(SF(2:8))',(ZCR(2:8))'];
         end
         
         function features = fullLengthFeatureGen(filename)
@@ -139,7 +144,48 @@ classdef FFTPlotter
                     audioBuffer(1:((8-1)*WINDOW_SIZE))];
                 lastSpectrum = spectrum;
             end
-            features = table(f0',HR',SF',ZCR');
+            f0_Norm = f0/(Fs/2);
+            features = table(f0_Norm',HR',SF',ZCR');
+            % cut off the first row of the table, because the spectral flux
+            % in the first row will make no sense (because lastSpectrum is
+            % initialized to all zeros
+            features = features(2:size(features,1),:);
+        end
+        
+        function features = fullLengthFeatureGen_kNN(filename)
+            WINDOW_SIZE = 4096;
+            [audio,Fs] = audioread(filename);
+            
+            % high pass the audio
+            audio = loStop(audio,Fs);
+            % fill the buffer with the first 8 frames
+            audioBuffer = audio(1:(8*WINDOW_SIZE));
+            audio = audio((8*WINDOW_SIZE+1):length(audio));
+            % segment the audio for easier access
+            audioFrameMatrix = frameSegment(audio,WINDOW_SIZE);
+            lastSpectrum = zeros(WINDOW_SIZE/2+1,1);
+            for i = 1:size(audioFrameMatrix,2)
+                
+                % generate a spectrogram
+                S = spectrogram(audioBuffer,WINDOW_SIZE);
+                % run the spectrogram through a mean filter
+                S = filter2(1/8*ones(1,8),abs(S));
+                spectrum = abs(S(:,1));
+                
+                % feature calculation
+                [lag, HR(i)] = FeatureCalculator.harmonicity(...
+                    audioBuffer(1:WINDOW_SIZE),63); % THE 63 IS IMPORTANT
+                f0(i) = Fs/lag;
+                SF(i) = FeatureCalculator.spectralFlux(spectrum,...
+                    lastSpectrum);
+                ZCR(i) = feature_zcr(audioBuffer(1:WINDOW_SIZE));
+                
+                % step the buffer
+                audioBuffer = [audioFrameMatrix(:,i);...
+                    audioBuffer(1:((8-1)*WINDOW_SIZE))];
+                lastSpectrum = spectrum;
+            end
+            features = [f0',SF',ZCR'];
             % cut off the first row of the table, because the spectral flux
             % in the first row will make no sense (because lastSpectrum is
             % initialized to all zeros

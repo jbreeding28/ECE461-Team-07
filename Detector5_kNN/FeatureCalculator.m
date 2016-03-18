@@ -28,6 +28,21 @@ classdef FeatureCalculator
             spectralFlux = sum((spectrum2-spectrum1).^2);
 
         end
+        
+        function [ flatness ] = flatness_hiFrequency( spectrum,...
+                ignoreBelowBin )
+            
+            spectrum = spectrum/max(spectrum);
+            spectrum = spectrum(ignoreBelowBin:length(spectrum));
+            spectrum(spectrum==0)=eps;
+            flatness = geomean(spectrum)/mean(spectrum);
+            
+        end
+        
+%         function [ numPeaks ] = numPeaks_hiFreq(spectrum, ignoreBelowBin)
+%             
+%         end
+        
     end
     
 end
