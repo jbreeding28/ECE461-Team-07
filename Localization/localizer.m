@@ -185,9 +185,9 @@ classdef localizer
             theta_offset=-22.5;%offset in degrees
             angles=angles.*45+theta_offset;
             
-            avg_angle = L.meanangle(angles,1,1e-12);%localizer.meanangle() ?
+            avg_angle = L.meanangle(angles);%localizer.meanangle() ?
             if avg_angle < 0
-                avg_angle = angle_val+360;
+                avg_angle = avg_angle+360;
             end
             zone_val=(avg_angle-theta_offset)./45;
             zone_val=round(zone_val);
