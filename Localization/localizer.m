@@ -105,7 +105,7 @@ classdef localizer
         function [] = display2(locations,amplitudes,background,C,...
                 NNE,ENE,ESE,SSE,SSW,WSW,WNW,NNW)
             zonecount=zeros(1,10);
-            len=sizeof(locations);
+            len=length(locations);
             for i=1:len
                 n=locations(i);
                 switch n
@@ -159,7 +159,7 @@ classdef localizer
         
         function [zone_val] = averager(sublocations)
             
-            len=sizeof(sublocations);
+            len=length(sublocations);
             angles=[];
             C_count=0;
             for i=1:len
@@ -171,7 +171,7 @@ classdef localizer
                 end
             end
             
-            len=sizeof(angles);
+            len=length(angles);
             if (C_count == 0) && (len == 0)
                 zone_val = 0;
                 return;
