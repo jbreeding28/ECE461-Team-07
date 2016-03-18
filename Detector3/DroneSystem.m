@@ -69,8 +69,8 @@ classdef DroneSystem
 %                     DS.detectors(i).getFlux());
 %                 set(hp(2),'YData',DS.detectors(1).getPreviousSpectrum());
                 
-                set(hp(1),'YData',energies,'XData', fluxes);
-                set(hp(2),'XData',DS.F_AXIS,'YData',DS.detectors(1).getPreviousSpectrum());
+                % set(hp(1),'YData',energies,'XData', fluxes);
+                % set(hp(2),'XData',DS.F_AXIS,'YData',DS.detectors(1).getPreviousSpectrum());
 
                 drawnow;
                 DS.testVariable = DS.detectors(1).getPreviousSpectrum();
@@ -87,9 +87,8 @@ classdef DroneSystem
                     avg_locations(2:end)=avg_locations(1:end-1);
                     avg_locations(1)=avg_loc;
 
-                    DS.localiz.display2(avg_locations,A,background,Czone,...
-                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
-                        NWzone,NNWzone);
+                    DS.localiz.display2(avg_locations,A,bckgrnd,Czone,...
+                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
                 end
             end
         end

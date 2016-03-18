@@ -102,7 +102,7 @@ classdef localizer
             %fprintf('Max = %f\nIndice: %i\n',max1,I1);
         end
         
-        function [] = display2(locations,amplitudes,background,C,...
+        function [] = display2(L,locations,amplitudes,background,C,...
                 NNE,ENE,ESE,SSE,SSW,WSW,WNW,NNW)
             zonecount=zeros(1,10);
             len=length(locations);
@@ -148,18 +148,18 @@ classdef localizer
                     zonecount(3).*NNW + zonecount(4).*WNW + zonecount(5).*WSW + ...
                     zonecount(6).*SSW + zonecount(7).*SSE + zonecount(8).*ESE + ...
                     zonecount(10).*C)./len;
-                im=imsubtract(background,im);
-                textpos=[327 180; 185 180; 185 322; 327 322];
-                text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
-                    num2str(amplitudes(3)),num2str(amplitudes(4))};
-                boxcolor={'white','white','white','white'};
-                im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
-                    boxcolor,'BoxOpacity',0);
+%                 im=imsubtract(background,im);
+%                 textpos=[327 180; 185 180; 185 322; 327 322];
+%                 text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
+%                     num2str(amplitudes(3)),num2str(amplitudes(4))};
+%                 boxcolor={'white','white','white','white'};
+%                 im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
+%                     boxcolor,'BoxOpacity',0);
             end
             imshow(im);
         end
         
-        function [zone_val] = averager(sublocations)
+        function [zone_val] = averager(L,sublocations)
             
             len=length(sublocations);
             angles=[];
@@ -185,7 +185,7 @@ classdef localizer
             theta_offset=-22.5;%offset in degrees
             angles=angles.*45+theta_offset;
             
-            avg_angle = meanangle(angles);%localizer.meanangle() ?
+            avg_angle = L.meanangle(angles,1,1e-12);%localizer.meanangle() ?
             if avg_angle < 0
                 avg_angle = angle_val+360;
             end
@@ -197,7 +197,7 @@ classdef localizer
             
         end
         
-        function [out] = meanangle(in,dim,sens)            
+        function [out] = meanangle(L,in,dim,sens)            
             % MEANANGLE will calculate the mean of a set of angles (in degrees) based
             % on polar considerations.
             %
