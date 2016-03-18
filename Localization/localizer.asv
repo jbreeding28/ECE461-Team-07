@@ -137,11 +137,6 @@ classdef Localizer
                 text={'NO DRONE DETECTED'}; textcolor={'red'};
                 im=insertText(background,textpos,text,'FontSize',30,'BoxColor',...
                     boxcolor,'BoxOpacity',0,'TextColor',textcolor);
-                textpos=[327 180; 185 180; 185 322; 327 322];
-                text={amplitudes(1),amplitudes(2),amplitudes(3),amplitudes(4)};
-                boxcolor={'white','white','white','white'};
-                im=insertText(background,textpos,text,'FontSize',12,'BoxColor',...
-                    boxcolor,'BoxOpacity',0);
             else
                 im=(zonecount(1).*ENE+zonecount(2).*NNE + ...
                     zonecount(3).*NNW + zonecount(4).*WNW + zonecount(5).*WSW + ...
@@ -161,29 +156,17 @@ classdef Localizer
             
             len=sizeof(sublocations);
             angles=[];
-            C_count=0;
             for i=1:len
                 temp=sublocations(i);
-                if  temp == 9
-                    C_count=C_count+1;
-                elseif temp ~= 0
+                if (temp ~= 0) && (temp ~= 9)
                     angles(end+1)=temp;
                 end
-            end
-            
-            len=sizeof(angles);
-            if (C_count == 0) && (len == 0)
-                zone_val = 0;
-                return;
-            elseif C_count >= len./2
-                zone_val = 9;
-                return;
             end
             
             theta_offset=-22.5;%offset in degrees
             angles=angles.*45+theta_offset;
             
-            avg_angle = meanangle(angles);%localizer.meanangle() ?  
+            avg_angle = meanangle(angles);
             if avg_angle < 0
                 avg_angle = angle_val+360;
             end
@@ -195,49 +178,49 @@ classdef Localizer
             
         end
         
-        function [out] = meanangle(in,dim,sens)            
-            % MEANANGLE will calculate the mean of a set of angles (in degrees) based
-            % on polar considerations.
-            %
-            % Usage: [out] = meanangle(in,dim)
-            %
-            % in is a vector or matrix of angles (in degrees)
-            % out is the mean of these angles along the dimension dim
-            %
-            % If dim is not specified, the first non-singleton dimension is used.
-            %
-            % A sensitivity factor is used to determine oppositeness, and is how close
-            % the mean of the complex representations of the angles can be to zero
-            % before being called zero.  For nearly all cases, this parameter is fine
-            % at its default (1e-12), but it can be readjusted as a third parameter if
-            % necessary:
-            %
-            % [out] = meanangle(in,dim,sensitivity)
-            %
-            % Written by J.A. Dunne, 10-20-05
-            %
-            
-            if nargin<3
-                sens = 1e-12;
-            end
-            
-            if nargin<2
-                ind = min(find(size(in)>1));
-                if isempty(ind)
-                    %This is a scalar
-                    out = in;
-                    return
-                end
-                dim = ind;
-            end
-            
-            in = in * pi/180;
-            
-            in = exp(i*in);
-            mid = mean(in,dim);
-            out = atan2(imag(mid),real(mid))*180/pi;
-            out(abs(mid)<sens) = nan;
-        end
+        function [out] = meanangle(in,dim,sens);
+
+% MEANANGLE will calculate the mean of a set of angles (in degrees) based
+% on polar considerations.
+%
+% Usage: [out] = meanangle(in,dim)
+%
+% in is a vector or matrix of angles (in degrees)
+% out is the mean of these angles along the dimension dim
+%
+% If dim is not specified, the first non-singleton dimension is used.
+%
+% A sensitivity factor is used to determine oppositeness, and is how close
+% the mean of the complex representations of the angles can be to zero
+% before being called zero.  For nearly all cases, this parameter is fine
+% at its default (1e-12), but it can be readjusted as a third parameter if
+% necessary:
+%
+% [out] = meanangle(in,dim,sensitivity)
+%
+% Written by J.A. Dunne, 10-20-05
+%
+
+if nargin<3
+    sens = 1e-12;
+end
+
+if nargin<2
+    ind = min(find(size(in)>1));
+    if isempty(ind)
+        %This is a scalar
+        out = in;
+        return
+    end
+    dim = ind;
+end
+
+in = in * pi/180;
+
+in = exp(i*in);
+mid = mean(in,dim);
+out = atan2(imag(mid),real(mid))*180/pi;
+out(abs(mid)<sens) = nan;
     end   
 end
 

@@ -83,12 +83,13 @@ classdef DroneSystem
                 raw_locationBuffer(1) = location;
                 
                 points_to_avg=5;
-                avg_loc=averager(raw_locationBuffer(1:points_to_avg));
+                avg_loc=DS.localizer.averager(raw_locationBuffer(1:points_to_avg));
                 avg_locations(2:end)=avg_locations(1:end-1);
                 avg_locations(1)=avg_loc;
                 
-                DS.localizer.display2(avg_locations,A,background,NNEzone,ENEzone,...
-                    ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
+                DS.localizer.display2(avg_locations,A,background,Czone,...
+                    NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
+                    NWzone,NNWzone);
             end
         end
         
