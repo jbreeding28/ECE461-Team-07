@@ -8,20 +8,20 @@ classdef DroneSystem
         % initialize detector with a placeholder so that it can be made
         % into an array of detector objects later on
         detectors = Detector();
-        localizer;
+        localiz;
         audioRecorder;
         testVariable;
         F_AXIS;
     end
     
     methods
-        function DS = DroneSystem(configSettings)
+        function DS = DroneSystem(configSettings,kNNStuff)
             DS.c = configSettings.constants;
-            DS.localizer = Localizer;
+            DS.localiz = localizer;
             
             % initialize one detector for each channel
             for i = 1:DS.c.NUM_CHANNELS
-                DS.detectors(i) = Detector(configSettings);
+                DS.detectors(i) = Detector(configSettings,kNNStuff);
             end
             
             DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
@@ -44,8 +44,8 @@ classdef DroneSystem
             fluxes = zeros(10,1);
             spectra = zeros(10, DS.c.WINDOW_SIZE/2+1);
             amplitudes = zeros(1,DS.c.NUM_CHANNELS);
-            raw_locationBuffer = zeroes(1,10);
-            avg_locations = zeroes(1,10);
+            raw_locationBuffer = zeros(1,10);
+            avg_locations = zeros(1,10);
             load('image_config.mat');
             
             % MAIN LOOP
@@ -57,7 +57,8 @@ classdef DroneSystem
                     stringOutput = [decisions{i}, ' E: ', ...
                         num2str(DS.detectors(i).getEnergy()), ' F: ', ...
                         num2str(DS.detectors(i).getFlux()), ' f0: ', ...
-                        num2str(DS.detectors(i).getf0())];
+                        num2str(DS.detectors(i).getf0()), ' zcr: ' ...
+                        num2str(DS.detectors(i).getZCR())];
                     set(hTextBox(i),'String',stringOutput);
                 end
                 energies = [DS.detectors(1).getEnergy; energies(1:(length(energies)-1))];
@@ -76,20 +77,20 @@ classdef DroneSystem
                 
                 % if there is a complete setup, run the localizer
                 if(DS.c.NUM_CHANNELS==4)
-                   [location, A] = DS.localizer.direction(amplitudes(1),amplitudes(2),...
+                   [location, A] = DS.localiz.direction(amplitudes(1),amplitudes(2),...
                         amplitudes(3),amplitudes(4));
+                    raw_locationBuffer(2:end) = raw_locationBuffer(1:end-1);
+                    raw_locationBuffer(1) = location;
+
+                    points_to_avg=5;
+                    avg_loc=DS.localiz.averager(raw_locationBuffer(1:points_to_avg));
+                    avg_locations(2:end)=avg_locations(1:end-1);
+                    avg_locations(1)=avg_loc;
+
+                    DS.localiz.display2(avg_locations,A,background,Czone,...
+                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
+                        NWzone,NNWzone);
                 end
-                raw_locationBuffer(2:end) = raw_locationBuffer(1:end-1);
-                raw_locationBuffer(1) = location;
-                
-                points_to_avg=5;
-                avg_loc=DS.localizer.averager(raw_locationBuffer(1:points_to_avg));
-                avg_locations(2:end)=avg_locations(1:end-1);
-                avg_locations(1)=avg_loc;
-                
-                DS.localizer.display2(avg_locations,A,background,Czone,...
-                    NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
-                    NWzone,NNWzone);
             end
         end
         
@@ -111,7 +112,7 @@ classdef DroneSystem
         end
         
 %         function localizerStep(DS,Af1,Af2,Af3,Af4)
-%             DS.localizer.direction()
+%             DS.localiz.direction()
 %         end
   
         function localizerTest(DS,Af)
@@ -131,7 +132,7 @@ classdef DroneSystem
             A2 = A2/mval;
             A3 = A3/mval;
             A4 = A4/mval;
-            DS.localizer.direction(A1,A2,A3,A4);
+            DS.localiz.direction(A1,A2,A3,A4);
         end
         
         function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)

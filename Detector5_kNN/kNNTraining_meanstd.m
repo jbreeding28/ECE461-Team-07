@@ -44,6 +44,9 @@ mdl = fitcknn(X,Y,'NumNeighbors',3);
 % flexability and number of neighbors are inversely related
 % flexability and how tightly the training data is fit is directly related
 
+% should loop over all possible neighbors and see what yeilds low error for
+% both testing and training data (like we did in machine learning)
+
 % get error rate for points in the training data
 rloss = resubLoss(mdl);
 

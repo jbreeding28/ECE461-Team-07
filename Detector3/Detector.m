@@ -13,14 +13,16 @@ classdef Detector < handle
         currentEnergy;
         currentFlux;
         currentf0;
+        currentZCR;
         currentHarmonicPeak;
         currentDroneAmplitude;
         autoCorrelator;
+        drone_mdl;
     end
     
     methods
          
-        function D = Detector(configSettings)
+        function D = Detector(configSettings,kNNStruct)
             if(nargin>0)
                 D.c = configSettings.constants;
                 D.F_AXIS = linspace(0,D.c.Fs/2,D.c.WINDOW_SIZE/2+1);
@@ -31,6 +33,7 @@ classdef Detector < handle
                     'MaximumLagSource','Property','MaximumLag',...
                     floor(1/150*D.c.Fs));
                 D.currentDroneAmplitude = 0;
+                D.drone_mdl = kNNStruct.drone_mdl;
             end
         end
         
@@ -58,19 +61,30 @@ classdef Detector < handle
             % feature calculation
             D.currentEnergy = D.spectralEnergy(spectrum);
             D.currentFlux = D.spectralFlux(spectrum);
-            D.currentf0 = D.periodicity();
+            [lag,~] = FeatureCalculator.harmonicity(D.bufferedAudio(1:D.c.WINDOW_SIZE),63);
+            D.currentf0 = D.c.Fs/lag;
+            D.currentZCR = feature_zcr(D.bufferedAudio(1:D.c.WINDOW_SIZE));
             
-            % decision(s)
-            decision = D.makeDecision(D.currentEnergy,D.currentFlux,...
-                D.currentf0,spectrum);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % DECISION PARADIGMS
             
-%             [decBoolean amplitudeNow] = hardprocesspeaksv2(spectrum);
-%             D.currentDroneAmplitude = amplitudeNow;
-%             if(decBoolean)
-%                 decision = 'drone';
-%             else
-%                 decision = 'non-drone';
-%             end
+%             decision = D.makeDecision_decisionTree(D.currentEnergy,...
+%                 D.currentFlux,D.currentf0,spectrum);
+            
+%             decision = D.makeDecision_kNN(D.currentEnergy,D.currentFlux,...
+%                 D.currentf0,D.currentZCR,spectrum);
+            
+            
+            % Elliott's Stuff
+            [decBoolean amplitudeNow] = hardprocesspeaksv2(spectrum);
+            D.currentDroneAmplitude = amplitudeNow;
+            if(decBoolean)
+                decision = 'drone';
+            else
+                decision = 'non-drone';
+            end
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             D.previousSpectrum = spectrum;
             
@@ -105,7 +119,7 @@ classdef Detector < handle
             energy = sum(spectrum.^2);
         end
         
-        function output = makeDecision(D,energy,flux,f0,spectrum)
+        function output = makeDecision_decisionTree(D,energy,flux,f0,spectrum)
         %MAKEDECISION attempts to determine what kind of signal is present
         %   This method tries to determine which category the input signal
         %   fits into. The categories are (1) 'weak', (2) 'highly
@@ -136,6 +150,25 @@ classdef Detector < handle
             output = 'drone signal';
             amplitude = D.signalStrengthEstimate(f0,3,spectrum);
             D.currentDroneAmplitude = amplitude;
+            
+        end
+        
+        function output = makeDecision_kNN(D,energy,flux,f0,zcr,spectrum)
+            D.currentDroneAmplitude = 0;
+        
+            if(energy < D.c.ENERGY_THRESHOLD)
+                output = 'weak signal';
+                return;
+            end
+            
+            output = cell2mat(predict(D.drone_mdl,[f0,flux,zcr]));
+            
+            if(strcmp(output,'drone signal'))
+                D.currentDroneAmplitude = D.signalStrengthEstimate(f0,3,spectrum);
+            else
+                D.currentDroneAmplitude = 0;
+            end
+            
             
         end
         
@@ -197,6 +230,10 @@ classdef Detector < handle
         
         function f0 = getf0(D)
             f0 = D.currentf0;
+        end
+        
+        function zcr = getZCR(D)
+            zcr = D.currentZCR;
         end
         
         function lastSpectrum = getPreviousSpectrum(D)

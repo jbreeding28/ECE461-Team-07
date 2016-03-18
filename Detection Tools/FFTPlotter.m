@@ -192,6 +192,11 @@ classdef FFTPlotter
             features = features(2:size(features,1),:);
         end
         
+        function [means stdevs] = mean_std_features(filename,windowSize,...
+                chunkSize)
+            % DO THIS
+        end
+        
         function playAudio(filename)
             [audio, Fs] = audioread(filename);
             audio = loStop(audio,Fs);

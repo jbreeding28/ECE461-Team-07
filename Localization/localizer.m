@@ -1,4 +1,4 @@
-classdef Localizer
+classdef localizer
     %LOCALIZER Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -6,7 +6,7 @@ classdef Localizer
     end
     
     methods
-        function L = Localizer()
+        function L = localizer()
         end
         function [location, A] = direction(L,A1,A2,A3,A4)
             location=0;%initialize
