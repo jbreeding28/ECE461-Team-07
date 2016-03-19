@@ -1,7 +1,6 @@
-clear
 % create a DroneSystem object
-load('configSettings_LaptopSetup4Channel.mat')
-system1 = DroneSystem(configSettings_alternate);
+load('Detector3\configSettings.mat')
+system1 = DroneSystem(configSettings);
 
 % define file names
 channel1 = 'from1to2_01.wav';
@@ -16,10 +15,10 @@ channel4 = 'from1to2_04.wav';
 [audio_04, Fs] = audioread(channel4);
 
 % segment
-audioFrameMatrix01 = frameSegment(audio_01,configSettings_alternate.constants.FRAME_SIZE);
-audioFrameMatrix02 = frameSegment(audio_02,configSettings_alternate.constants.FRAME_SIZE);
-audioFrameMatrix03 = frameSegment(audio_03,configSettings_alternate.constants.FRAME_SIZE);
-audioFrameMatrix04 = frameSegment(audio_04,configSettings_alternate.constants.FRAME_SIZE);
+audioFrameMatrix01 = frameSegment(audio_01,configSettings.constants.FRAME_SIZE);
+audioFrameMatrix02 = frameSegment(audio_02,configSettings.constants.FRAME_SIZE);
+audioFrameMatrix03 = frameSegment(audio_03,configSettings.constants.FRAME_SIZE);
+audioFrameMatrix04 = frameSegment(audio_04,configSettings.constants.FRAME_SIZE);
 
 system1.start();
 
