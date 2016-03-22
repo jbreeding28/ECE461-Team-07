@@ -88,7 +88,7 @@ classdef DroneSystem
                     avg_locations(1)=avg_loc;
 
                     DS.localiz.display2(avg_locations,A,bckgrnd,Czone,...
-                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone);
+                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone,nodrone);
                 end
             end
         end

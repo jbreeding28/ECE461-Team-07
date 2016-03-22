@@ -8,11 +8,12 @@ classdef localizer
     methods
         function L = localizer()
         end
-        function [location, A] = direction(L,A1,A2,A3,A4)
+        function [location, A_copy] = direction(L,A1,A2,A3,A4)
             location=0;%initialize
             %Input 4 amplitudes (representing the peak magnitude recieved at each mic)
             %  Output: Text describing the direction of the source
             A = [A1 A2 A3 A4];
+            A_copy=A;
             if (A1==0&&A2==0&&A3==0&&A4==0)
                 %fprintf('No drone detected\n')
                 location = 0;
@@ -25,8 +26,8 @@ classdef localizer
             [max3, I3] = max(A);
             A(I3) = [-50];
             [max4, I4] = max(A);
-            A(I4) = [];
-            if (((max2*.95 <= max1) && (max1 <= max2*1.05)) && ((max3*.95 <= max1) && (max1 <= max3*1.05)) && ((max4*.95 <= max1) && (max1 <= max4*1.05)))
+            A(I4) = [-50];
+            if (((max2*.90 <= max1) && (max1 <= max2*1.1)) && ((max3*.90 <= max1) && (max1 <= max3*1.1)) && ((max4*.9 <= max1) && (max1 <= max4*1.1)))
                 location=9;
                 % fprintf('Source is located directly above in the center\n');
 %             elseif (I1 == 1 && I2 == 3)
@@ -103,7 +104,7 @@ classdef localizer
         end
         
         function [] = display2(L,locations,amplitudes,background,C,...
-                NNE,ENE,ESE,SSE,SSW,WSW,WNW,NNW)
+                NNE,ENE,ESE,SSE,SSW,WSW,WNW,NNW,nodrone)
             zonecount=zeros(1,10);
             len=length(locations);
             for i=1:len
@@ -133,22 +134,24 @@ classdef localizer
             end
             
             if zonecount(9) == len
-                textpos=[87 130]; boxcolor={'white'};
-                text={'NO DRONE DETECTED'}; textcolor={'red'};
-                im=insertText(background,textpos,text,'FontSize',30,'BoxColor',...
-                    boxcolor,'BoxOpacity',0,'TextColor',textcolor);
-                textpos=[327 180; 185 180; 185 322; 327 322];
-                text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
-                    num2str(amplitudes(3)),num2str(amplitudes(4))};
-                boxcolor={'white','white','white','white'};
-                im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
-                    boxcolor,'BoxOpacity',0);
+                im=nodrone;
+%                 textpos=[87 130]; boxcolor={'white'};
+%                 text={'NO DRONE DETECTED'}; textcolor={'red'};
+%                 im=insertText(background,textpos,text,'FontSize',30,'BoxColor',...
+%                     boxcolor,'BoxOpacity',0,'TextColor',textcolor);
+%                 textpos=[327 180; 185 180; 185 322; 327 322];
+%                 text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
+%                     num2str(amplitudes(3)),num2str(amplitudes(4))};
+%                 boxcolor={'white','white','white','white'};
+%                 im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
+%                     boxcolor,'BoxOpacity',0);
             else
                 im=(zonecount(1).*ENE+zonecount(2).*NNE + ...
                     zonecount(3).*NNW + zonecount(4).*WNW + zonecount(5).*WSW + ...
                     zonecount(6).*SSW + zonecount(7).*SSE + zonecount(8).*ESE + ...
                     zonecount(10).*C)./len;
-%                 im=imsubtract(background,im);
+                % FIX THIS
+                im=imsubtract(background,im);
 %                 textpos=[327 180; 185 180; 185 322; 327 322];
 %                 text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
 %                     num2str(amplitudes(3)),num2str(amplitudes(4))};
@@ -221,6 +224,7 @@ classdef localizer
             
             if nargin<3
                 sens = 1e-12;
+                dim = 2;
             end
             
             if nargin<2
