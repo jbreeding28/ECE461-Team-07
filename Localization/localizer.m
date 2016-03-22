@@ -150,7 +150,6 @@ classdef localizer
                     zonecount(3).*NNW + zonecount(4).*WNW + zonecount(5).*WSW + ...
                     zonecount(6).*SSW + zonecount(7).*SSE + zonecount(8).*ESE + ...
                     zonecount(10).*C)./len;
-                % FIX THIS
                 im=imsubtract(background,im);
 %                 textpos=[327 180; 185 180; 185 322; 327 322];
 %                 text={num2str(amplitudes(1)),num2str(amplitudes(2)),...
@@ -188,7 +187,7 @@ classdef localizer
             theta_offset=-22.5;%offset in degrees
             angles=angles.*45+theta_offset;
             
-            avg_angle = L.meanangle(angles);%localizer.meanangle() ?
+            avg_angle = L.meanangle(angles);%dim=2
             if avg_angle < 0
                 avg_angle = avg_angle+360;
             end
@@ -228,7 +227,7 @@ classdef localizer
             end
             
             if nargin<2
-                ind = min(find(size(in)>1));
+                ind = find(size(in)>1,1);
                 if isempty(ind)
                     %This is a scalar
                     out = in;
@@ -239,7 +238,7 @@ classdef localizer
             
             in = in * pi/180;
             
-            in = exp(i*in);
+            in = exp(1i*in);
             mid = mean(in,dim);
             out = atan2(imag(mid),real(mid))*180/pi;
             out(abs(mid)<sens) = nan;
