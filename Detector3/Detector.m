@@ -70,7 +70,7 @@ classdef Detector < handle
             
 %             decision = D.makeDecision_decisionTree(D.currentEnergy,...
 %                 D.currentFlux,D.currentf0,spectrum);
-            
+%             
 %             decision = D.makeDecision_kNN(D.currentEnergy,D.currentFlux,...
 %                 D.currentf0,D.currentZCR,spectrum);
             

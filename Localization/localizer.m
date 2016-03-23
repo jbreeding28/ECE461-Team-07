@@ -27,6 +27,11 @@ classdef localizer < handle
             if (A1==0&&A2==0&&A3==0&&A4==0)
                 %fprintf('No drone detected\n')
                 location = 0;
+                if(L.curInd == length(L.locHistory))
+                    L.curInd = 1;
+                end
+                L.locHistory(L.curInd,:) = [toc(L.loc_timer) location];
+                L.curInd = L.curInd+1;
                 return;
             end
             [max1, I1] = max(A);
@@ -266,6 +271,11 @@ classdef localizer < handle
         
         function configImViewer(L,hImage)
             L.hIm = hImage;
+        end
+        
+        function historyToWorkspace(L)
+            assignin('base', 'localization_history', L.locHistory);
+            assignin('base', 'localization_history_lastIndex', L.curInd);
         end
     end   
 end

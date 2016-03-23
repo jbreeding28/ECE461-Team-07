@@ -65,6 +65,7 @@ classdef DroneSystem
             
             % MAIN LOOP
             while(1)
+            try
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
                     decisions(i) = {DS.detectors(i).step(audioFrame(:,i))};
@@ -93,7 +94,6 @@ classdef DroneSystem
                 set(hp(1),'YData',f0s,'XData', fluxes,'ZData',zcrs);
                 set(hp(2),'XData',DS.F_AXIS,'YData',...
                    DS.detectors(1).getPreviousSpectrum());
-
                 drawnow;
                 
                 % if there is a complete setup, run the localizer
@@ -114,9 +114,13 @@ classdef DroneSystem
                         NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
                         WNWzone,NNWzone,nodrone);
                 end
+            catch ME
+                DS.localiz.historyToWorkspace();
+                rethrow(ME);
+            end
+            
             end
         end
-        
         
         function [decisionNums,fluxes,energies] = test(DS,singleAudioFrame)
             %TEST take a single audio frame and make a decision
