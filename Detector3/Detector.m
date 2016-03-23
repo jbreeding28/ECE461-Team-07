@@ -230,6 +230,9 @@ classdef Detector < handle
         
         function f0 = getf0(D)
             f0 = D.currentf0;
+            if(f0==0)
+                f0 = eps;
+            end
         end
         
         function zcr = getZCR(D)

@@ -1,12 +1,22 @@
-classdef localizer
+classdef localizer < handle
     %LOCALIZER Summary of this class goes here
     %   Detailed explanation goes here
     
     properties
+        locHistory;
+        curInd;
+        loc_timer;
+        hIm;
     end
     
     methods
         function L = localizer()
+            % locHistory is meant to keep a timestamped history of drone
+            % location. It is meant for testing purposes.
+            L.locHistory = zeros(10000,2); % [timestamp, location]
+            L.curInd = 1;
+            L.loc_timer = tic;
+            disp('Localization timer started')
         end
         function [location, A_copy] = direction(L,A1,A2,A3,A4)
             location=0;%initialize
@@ -98,6 +108,15 @@ classdef localizer
                 
             end
             
+            % need to test the history code
+            % the history will wrap around
+            if(L.curInd == length(L.locHistory))
+                L.curInd = 1;
+            end
+            L.locHistory(L.curInd,:) = [toc(L.loc_timer) location];
+            L.curInd = L.curInd+1;
+            
+            
             %fprintf('It is located %s from the center\n',string);
             %string = ['Q' num2str(I1)];
             %fprintf('Max = %f\nIndice: %i\n',max1,I1);
@@ -158,7 +177,8 @@ classdef localizer
 %                 im=insertText(im,textpos,text,'FontSize',12,'BoxColor',...
 %                     boxcolor,'BoxOpacity',0);
             end
-            imshow(im);
+            set(L.hIm,'CData',im);
+            %imshow(im);
         end
         
         function [zone_val] = averager(L,sublocations)
@@ -242,6 +262,10 @@ classdef localizer
             mid = mean(in,dim);
             out = atan2(imag(mid),real(mid))*180/pi;
             out(abs(mid)<sens) = nan;
+        end
+        
+        function configImViewer(L,hImage)
+            L.hIm = hImage;
         end
     end   
 end

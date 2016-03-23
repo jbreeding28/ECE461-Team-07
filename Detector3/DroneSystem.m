@@ -10,7 +10,6 @@ classdef DroneSystem
         detectors = Detector();
         localiz;
         audioRecorder;
-        testVariable;
         F_AXIS;
     end
     
@@ -29,7 +28,6 @@ classdef DroneSystem
                 configSettings.audioDriver,'NumChannels', ...
                 DS.c.NUM_CHANNELS);
             
-            DS.testVariable = zeros(2049,1);
             DS.F_AXIS = linspace(0,DS.c.Fs/2,DS.c.WINDOW_SIZE/2+1);
         end
         
@@ -39,14 +37,31 @@ classdef DroneSystem
             % setup the live plots
             decisions = {'1'; '2'; '3'; '4'};
             
-            [hFig, hp, ha, hTextBox] = DS.figureSetup(decisions); %#ok<*ASGLU>
-            energies = zeros(10,1);
-            fluxes = zeros(10,1);
-            spectra = zeros(10, DS.c.WINDOW_SIZE/2+1);
+            [hFig, hp, ha, hTextBox, hIm] = DS.figureSetup(decisions);
+            
+            numPointsFeatureSpace = 100;
+            
+            % features over time
+            energies = zeros(numPointsFeatureSpace,1);
+            fluxes = zeros(numPointsFeatureSpace,1);
+            zcrs = zeros(numPointsFeatureSpace,1);
+            f0s = zeros(numPointsFeatureSpace,1);
+            spectra = zeros(numPointsFeatureSpace, DS.c.WINDOW_SIZE/2+1);
+            
             amplitudes = zeros(1,DS.c.NUM_CHANNELS);
             raw_locationBuffer = zeros(1,10);
             avg_locations = zeros(1,10);
             load('image_config.mat');
+            % eventually, put the below line in the if statement below
+            DS.localiz.configImViewer(hIm);
+            if(DS.c.NUM_CHANNELS==4)
+                disp('Four input channels detected, localizer active')
+                fourChannelMode = 1;
+            else
+                disp([num2str(DS.c.NUM_CHANNELS) ...
+                    ' input channel(s) detected, 4 required for localize to go active'])
+                fourChannelMode = 0;
+            end
             
             % MAIN LOOP
             while(1)
@@ -61,37 +76,47 @@ classdef DroneSystem
                         num2str(DS.detectors(i).getZCR())];
                     set(hTextBox(i),'String',stringOutput);
                 end
-                energies = [DS.detectors(1).getEnergy; energies(1:(length(energies)-1))];
-                fluxes = [DS.detectors(1).getFlux; fluxes(1:(length(energies)-1))];
-                spectra = [DS.detectors(1).getPreviousSpectrum()'; spectra(1:(length(fluxes)-1),:)];
+                energies = [DS.detectors(1).getEnergy; ...
+                    energies(1:(numPointsFeatureSpace-1))];
+                f0s = [DS.detectors(1).getf0;f0s(1:(numPointsFeatureSpace-1))];
+                fluxes = [DS.detectors(1).getFlux; ...
+                    fluxes(1:(numPointsFeatureSpace-1))];
+                zcrs = [DS.detectors(1).getZCR; ...
+                    zcrs(1:(numPointsFeatureSpace-1))];
+                spectra = [DS.detectors(1).getPreviousSpectrum()'; ...
+                    spectra(1:(numPointsFeatureSpace-1),:)];
                 
 %                 set(hp(1),'YData',DS.detectors(1).getEnergy(),'XData',...
 %                     DS.detectors(i).getFlux());
 %                 set(hp(2),'YData',DS.detectors(1).getPreviousSpectrum());
                 
-                % set(hp(1),'YData',energies,'XData', fluxes);
-                % set(hp(2),'XData',DS.F_AXIS,'YData',DS.detectors(1).getPreviousSpectrum());
+                set(hp(1),'YData',f0s,'XData', fluxes,'ZData',zcrs);
+                set(hp(2),'XData',DS.F_AXIS,'YData',...
+                   DS.detectors(1).getPreviousSpectrum());
 
                 drawnow;
-                DS.testVariable = DS.detectors(1).getPreviousSpectrum();
                 
                 % if there is a complete setup, run the localizer
-                if(DS.c.NUM_CHANNELS==4)
-                   [location, A] = DS.localiz.direction(amplitudes(1),amplitudes(2),...
-                        amplitudes(3),amplitudes(4));
-                    raw_locationBuffer(2:end) = raw_locationBuffer(1:end-1);
+                if(fourChannelMode)
+                   [location, A] = DS.localiz.direction(amplitudes(1),...
+                       amplitudes(2),amplitudes(3),amplitudes(4));
+                    raw_locationBuffer(2:end) = raw_locationBuffer...
+                        (1:end-1);
                     raw_locationBuffer(1) = location;
 
                     points_to_avg=5;
-                    avg_loc=DS.localiz.averager(raw_locationBuffer(1:points_to_avg));
+                    avg_loc=DS.localiz.averager(raw_locationBuffer...
+                        (1:points_to_avg));
                     avg_locations(2:end)=avg_locations(1:end-1);
                     avg_locations(1)=avg_loc;
 
                     DS.localiz.display2(avg_locations,A,bckgrnd,Czone,...
-                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,WNWzone,NNWzone,nodrone);
+                        NNEzone,ENEzone,ESEzone,SSEzone,SSWzone,WSWzone,...
+                        WNWzone,NNWzone,nodrone);
                 end
             end
         end
+        
         
         function [decisionNums,fluxes,energies] = test(DS,singleAudioFrame)
             %TEST take a single audio frame and make a decision
@@ -102,7 +127,8 @@ classdef DroneSystem
             fluxes = zeros(DS.c.NUM_CHANNELS,1);
             energies = zeros(DS.c.NUM_CHANNELS,1);
             for i = 1:DS.c.NUM_CHANNELS
-                decisions(i) = {DS.detectors(i).step(singleAudioFrame(:,i))};
+                decisions(i) = {DS.detectors(i).step(singleAudioFrame...
+                    (:,i))};
                 decisionNumbers(i) = DS.classStringToNum(decisions(i));
                 fluxes(i) = DS.detectors(i).getFlux();
                 energies(i) = DS.detectors(i).getEnergy();
@@ -134,22 +160,31 @@ classdef DroneSystem
             DS.localiz.direction(A1,A2,A3,A4);
         end
         
-        function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)
+        function [hFig, hp, ha, hTextBox, hIm] = figureSetup(DS, decisions)
         %FIGURESETUP a function used to setup a figure for testing purposes
             hFig = figure();
             subplot(2,1,1);
-            hp(1) = plot(1,1,'O');
-            axis manual
-            ha(1) = gca;
-            set(ha(1),'YLimMode','manual')
-%             set(ha(1),'YLim',[0 1000],'YScale','log','XLim',[0 1], ...
-%                 'XScale','log')
+            % 2D plot
+%             hp(1) = plot(1,1,'O');
+%             axis manual
+%             ha(1) = gca;
+%             set(ha(1),'YLimMode','manual')
+% %             set(ha(1),'YLim',[0 1000],'YScale','log','XLim',[0 1], ...
+% %                 'XScale','log')
+%             % this is a line of great interest when calibrating with the
+%             % hardware
+%             set(ha(1),'YLim',[0 1000],'XLim',[0 0.02])
             
-            % this is a line of great interest when calibrating with the
-            % hardware
-            set(ha(1),'YLim',[0 1000],'XLim',[0 0.02])
+            % 3D plot
+            hp(1) = plot3(1,1,1,'O');
+            grid on
+            ha(1) = gca;
+            xlabel('Normalized spectral flux')
+            ylabel('Fundemental frequency (Hz)')
+            zlabel('Zero crossing rate')
             
             title('Feature space')
+            
             subplot(2,1,2);
             hp(2) = plot(DS.F_AXIS,zeros(1,DS.c.WINDOW_SIZE/2+1));
             ha(2) = gca;
@@ -165,10 +200,14 @@ classdef DroneSystem
                 set(hTextBox(i),'String',decisions(i));
                 set(hTextBox(i),'Position',[0 30*i 300 25])
             end
+            
+            % localizer image
+            figure
+            hIm = imshow(zeros(501,501,3));
         end
         
         function calibration(DS)
-            
+            % potentially something to implement in the future
         end
         
         function classNum = classStringToNum(DS,classString)

@@ -147,7 +147,11 @@ thresh = thresh*extrema; % Adjust threshold according to extrema.
 dx0 = diff(x0); % Find derivative
 dx0(dx0 == 0) = -eps; % This is so we find the first of repeated values
 ind = find(dx0(1:end-1).*dx0(2:end) < 0)+1; % Find where the derivative changes sign
-
+if(isempty(ind))
+    warning('no sign changes found in peakfinder');
+    varargout = {[],[]};
+    return;
+end
 % Include endpoints in potential peaks and valleys as desired
 if includeEndpoints
     x = [x0(1);x0(ind);x0(end)];
