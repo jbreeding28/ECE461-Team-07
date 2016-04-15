@@ -1,3 +1,8 @@
+%This file creates the images used in the phosphor display. The images are
+%saved as matrices (not in an image format) for performance. These matrices
+%are stored in the file imae_config.mat. Note that the 'nodrone' matrix was
+%not created by this file.
+
 image=ones(501,501,3);%blank image used for display creation
 M_circle=[251 251 200];%for system boundary
 M_axes=[51 251 451 251; 251 51 251 451];%axes for quadrants
@@ -9,11 +14,11 @@ M_mics=[322 180; 180 180; 180 322; 322 322];%[origin,m1,m2,m3,m4]
 bckgrnd = insertShape(image,'Circle',M_circle,'Color','black');
 bckgrnd = insertShape(bckgrnd,'Line',M_axes,'Color','black');
 bckgrnd = insertMarker(bckgrnd,M_mics,'o','Color','black');
-textpos=[15 230; 241 450; 453 230; 237 12];
+textpos=[15 230; 241 450; 453 230; 237 12];%add directions
 text={'W','S','E','N'}; boxcolor={'white','white','white','white'};
 bckgrnd = insertText(bckgrnd,textpos,text,'FontSize',30,'BoxColor',...
     boxcolor,'BoxOpacity',0);
-imwrite(bckgrnd,'bckgrnd.png');
+%imwrite(bckgrnd,'bckgrnd.png');
 %imshow(bckgrnd);
 
 %initialize different zones
@@ -23,13 +28,13 @@ Czone=NNEzone;
 
 %create the different zones
 for i=1:501 %columns
-    deltay=251-i;
+    deltay=251-i;%vertical distance form center
     for j=1:501 %rows
-        deltax=j-251;
-        dist=sqrt(deltay.^2+deltax.^2);
-        if dist < 30
+        deltax=j-251;%horizontal distance from center
+        dist=sqrt(deltay.^2+deltax.^2);%get hypotenuse
+        if dist < 30 %if the pixel is within center of system
             Czone(i,j,1:3) = [1,1,0];
-        elseif dist < 200 %if the point is inside the circle
+        elseif dist < 200 %if the pixel is within the system boundary
             theta=atan2(deltay,deltax);
             %classification based on theta
             if (theta>=0) && (theta < pi./4)

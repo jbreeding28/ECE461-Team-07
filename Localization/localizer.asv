@@ -227,11 +227,11 @@ classdef localizer < handle
             angles=angles.*45+theta_offset;%convert angles to degrees
             
             avg_angle = L.meanangle(angles);%average the angles. dim=2
-            if avg_angle < 0 %convert negative angle to positive
+            if avg_angle < 0 %convert negative angle to positive values
                 avg_angle = avg_angle+360;
             end
-            zone_val=(avg_angle-theta_offset)./45;%convert angle to zone
-            zone_val=round(zone_val);%round to integer
+            zone_val=(avg_angle-theta_offset)./45;
+            zone_val=round(zone_val);
             % if zone_val == 0
             %     zone_val=8;
             % end
