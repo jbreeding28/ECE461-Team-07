@@ -2,7 +2,9 @@
 %authors:  Lane Boyd
 %date:     12/10/15
 %function: this module determines estimated relative amplitudes at each
-%          mic given the position of the sound source in space
+%          mic given the position of the sound source in space. Note that
+%          the estimate does not account for attenuation of free space and
+%          assumes an isotropic radiation pattern of sound from a sound source.
 
 %microphone locations
 m2=[-10 10 0];
