@@ -50,7 +50,8 @@ classdef Detector < handle
             D.bufferedAudio = [singleAudioFrame; ...
                 D.bufferedAudio(1:((D.FRAMES_HELD-1)*D.c.FRAME_SIZE))];
             
-            % spectrogram on the buffered audio
+            % spectrogram on the buffered audio, then return the relevant
+            % spectrum (one slice of the spectrogram)
             spectrum = D.spectro();
             
             % set (0-150Hz) to zero note that this calculation is here to
@@ -68,6 +69,7 @@ classdef Detector < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % DECISION PARADIGMS
             
+            % Machine learning stuff
 %             decision = D.makeDecision_decisionTree(D.currentEnergy,...
 %                 D.currentFlux,D.currentf0,spectrum);
 %             
@@ -75,7 +77,7 @@ classdef Detector < handle
 %                 D.currentf0,D.currentZCR,spectrum);
             
             
-            % Elliott's Stuff
+            % Peak finding stuff
             [decBoolean amplitudeNow] = hardprocesspeaksv2(spectrum);
             D.currentDroneAmplitude = amplitudeNow;
             if(decBoolean)
