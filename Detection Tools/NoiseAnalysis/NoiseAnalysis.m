@@ -7,8 +7,8 @@
 % spectrogram
 WINDOW_SIZE = 4096;
 
-filename = 'Sample Audio/people-talking.wav';
-filename = 'Phantom 3 (#2).wav';
+filename = 'sample_talking.wav';
+%filename = 'Phantom 3 (#2).wav';
 %filename = 'background.wav';
 
 [audio, Fs] = audioread(filename);
