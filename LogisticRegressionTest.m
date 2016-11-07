@@ -1,9 +1,8 @@
 clear all;
 load fisheriris;
-load moore;
 % extract data from fisheriris to use only two categories
 extractedData = [51:150];
-modelLength = 45;
+modelLength = 10;
 testLength = 5;
 actualTestLength = min((length(extractedData)/2) - modelLength,testLength);
 midPoint = (length(extractedData)/2);
