@@ -1,9 +1,7 @@
-function accuracy = testLogisticRegressionModel(class1Data, class0Data, modelPercentage)
+function accuracy = testLogisticRegressionModel(class1Data, class0Data,...
+    modelPercentage,probabilityCutoff)
 if or(~ismatrix(class1Data),~ismatrix(class0Data))
     error('Input data must be in matrix form');
-end
-if(modelPercentage >= 1)
-    error('Percentage of data for use in model must be less than 1');
 end
 class1Identifier = 'one';
 class0Identifier = 'zero';
@@ -34,7 +32,7 @@ summedRows = sum(multiplied,2);
 relativeProbs = exp(Boffset + sum(Bslopes.*testData,2));
 probs = relativeProbs./(1+relativeProbs);
 for n = 1:length(probs)
-    if(probs(n) < 0.5)
+    if(probs(n) < probabilityCutoff)
         guessedClasses(n) = {class0Identifier};
     else
         guessedClasses(n) = {class1Identifier};
