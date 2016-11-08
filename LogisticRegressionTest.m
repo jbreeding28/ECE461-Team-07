@@ -2,8 +2,8 @@ clear all;
 load fisheriris;
 % extract data from fisheriris to use only two categories
 extractedData = [51:150];
-modelLength = 10;
-testLength = 5;
+modelLength = 20;
+testLength = 10;
 actualTestLength = min((length(extractedData)/2) - modelLength,testLength);
 midPoint = (length(extractedData)/2);
 modelRange = [1:modelLength midPoint+1:midPoint+modelLength];
@@ -65,16 +65,18 @@ fig = figure();
 set(fig,'Position',[100 50 1280 720]);
 suptitle(sprintf(['\\beta_{0}=' num2str(B(1)) ', p=' num2str(stats.p(1)) '\n\n']));
 subplot(2,2,1);
-scatter(first1,y1,'r');
+scatter(first1,y1,70,'r');
 hold on
-ksdensity(first1);
-scatter(first2,y2,'b*');
-ksdensity(first2);
+[d11, x11] = ksdensity(first1);
+plot(x11,d11,'r','Linewidth',3);
+scatter(first2,y2,70,'b*');
+[d12, x12] = ksdensity(first2);
+plot(x12,d12,'b','Linewidth',3);
 % the relative probability formula is created from the various parameters
 % as given below. The probability is calculated and plotted below that
 relativeProb = exp(B(1) + n1.*B(2) + avg2*B(3) + avg3*B(4) + avg4*B(5));
 prob = relativeProb./(1+relativeProb);
-plot(n1,prob,'k');
+plot(n1,prob,'k','Linewidth',2);
 hold off
 legend([char(sp(length(sp))) ' data'],[char(sp(length(sp))) ' distribution'],...
     [char(sp(1)) ' data'], [char(sp(1)) ' distribution'],['probability of ' char(sp(1))]);
@@ -83,14 +85,16 @@ ylabel(['Flower Class (1=' char(sp(1)) ' ,0=' char(sp(length(sp))) ')']);
 xlabel('Sepal Length (cm)');
 
 subplot(2,2,2);
-scatter(second1,y1,'r');
+scatter(second1,y1,70,'r');
 hold on
-ksdensity(second1);
-scatter(second2,y2,'b*');
-ksdensity(second2);
+[d21, x21] = ksdensity(second1);
+plot(x21,d21,'r','Linewidth',3);
+scatter(second2,y2,70,'b*');
+[d22, x22] = ksdensity(second2);
+plot(x22,d22,'b','Linewidth',3);
 relativeProb = exp(B(1) + avg1*B(2) + n2.*B(3) + avg3*B(4) + avg4*B(5));
 prob = relativeProb./(1+relativeProb);
-plot(n2,prob,'k');
+plot(n2,prob,'k','Linewidth',2);
 hold off
 title(['Flower Class vs. Sepal Width, \beta_{2}=' num2str(B(3)) ' ,p=' num2str(stats.p(3))]);
 ylabel(['Flower Class (1=' char(sp(1)) ' ,0=' char(sp(length(sp))) ')']);
@@ -98,34 +102,39 @@ xlabel('Sepal Width (cm)');
 
 
 subplot(2,2,3);
-scatter(third1,y1,'r');
+scatter(third1,y1,70,'r');
 hold on
-ksdensity(third1);
-scatter(third2,y2,'b*');
-ksdensity(third2);
+[d31, x31] = ksdensity(third1);
+plot(x31,d31,'r','Linewidth',3);
+scatter(third2,y2,70,'b*');
+[d32, x32] = ksdensity(third2);
+plot(x32,d32,'b','Linewidth',3);
 relativeProb = exp(B(1) + avg1*B(2) + avg2*B(3) + n3.*B(4) + avg4*B(5));
 prob = relativeProb./(1+relativeProb);
-plot(n3,prob,'k');
+plot(n3,prob,'k','Linewidth',2);
 hold off
 title(['Flower Class vs. Petal Length, \beta_{3}=' num2str(B(4)) ' ,p=' num2str(stats.p(4))]);
 ylabel(['Flower Class (1=' char(sp(1)) ' ,0=' char(sp(length(sp))) ')']);
 xlabel('Petal Length (cm)');
 
 subplot(2,2,4);
-scatter(fourth1,y1,'r');
+scatter(fourth1,y1,70,'r');
 hold on
-ksdensity(fourth1);
-scatter(fourth2,y2,'b*');
-ksdensity(fourth2);
+[d41, x41] = ksdensity(fourth1);
+plot(x41,d41,'r','Linewidth',3);
+scatter(fourth2,y2,70,'b*');
+[d42, x42] = ksdensity(fourth2);
+plot(x42,d42,'b','Linewidth',3);
 relativeProb = exp(B(1) + avg1*B(2) + avg2*B(3) + avg3*B(4) + n4.*B(5));
 prob = relativeProb./(1+relativeProb);
-plot(n4,prob,'k');
+plot(n4,prob,'k','Linewidth',2);
 hold off
 title(['Flower Class vs. Petal Width, \beta_{4}=' num2str(B(5)) ' ,p=' num2str(stats.p(5))]);
 ylabel(['Flower Class (1=' char(sp(1)) ' ,0=' char(sp(length(sp))) ')']);
 xlabel('Petal Width (cm)');
 
-figure();
+fig2 = figure();
+set(fig2,'Position',[100 50 1280 720]);
 relativeProbs = exp(ones(length(measuredTest(:,1)),1).*B(1) + measuredTest(:,1).*B(2)...
     + measuredTest(:,2).*B(3) + measuredTest(:,3).*B(4) + measuredTest(:,4).*B(5));
 probs = relativeProbs./(1+relativeProbs);
@@ -140,10 +149,11 @@ for n = 1:length(probs);
 end
 data = uitable('Data',[cellstr(spTest) cellstr(guessedClasses)...
     cellstr(num2str(probs)) cellstr(num2str(relativeProbs)) ],'ColumnName',...
-    {'Class','Predicted Class','Probability of versicolor',... 
-    'Relative probability of versicolor'},...
-    'ColumnWidth', {50 100 150 200});
-data.Position = [0 50 550 215];
+    {'<html><font size=+2>Class','<html><font size=+2>Predicted Class',...
+    '<html><font size=+2>Probability of versicolor',... 
+    '<html><font size=+2>Relative probability of versicolor'},...
+    'ColumnWidth', {150 200 350 545},'FontSize',15);
+data.Position = [0 50 1280 620];
 
 
 
