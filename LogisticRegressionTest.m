@@ -2,7 +2,7 @@ clear all;
 load fisheriris;
 % extract data from fisheriris to use only two categories
 extractedData = [51:150];
-modelLength = 20;
+modelLength = 40;
 testLength = 10;
 actualTestLength = min((length(extractedData)/2) - modelLength,testLength);
 midPoint = (length(extractedData)/2);
@@ -154,9 +154,13 @@ data = uitable('Data',[cellstr(spTest) cellstr(guessedClasses)...
     '<html><font size=+2>Relative probability of versicolor'},...
     'ColumnWidth', {150 200 350 545},'FontSize',15);
 data.Position = [0 50 1280 620];
-
-
-
-
-
-
+tree = fitctree(measured,sp,'MinParentSize',4);
+view(tree,'Mode','graph');
+fig3 = figure();
+set(fig3,'Position',[50 50 385 720]);
+treePredictions = predict(tree,measuredTest);
+data = uitable('Data',[cellstr(spTest) cellstr(treePredictions)],...
+    'ColumnName',{'<html><font size=+2>Class',...
+    '<html><font size=+2>Predicted Class'},'ColumnWidth',...
+    {150 200},'FontSize',15);
+data.Position = [0 50 385 620];

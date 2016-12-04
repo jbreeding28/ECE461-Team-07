@@ -1,1 +1,1 @@
-generateModelLog(10,0.001,100,102,[0.05 1 0.3])
+generateModelLog('Logistic Regression',[10,0.001,100],102,[0.05 1 0.3])
