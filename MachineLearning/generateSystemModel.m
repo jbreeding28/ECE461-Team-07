@@ -1,4 +1,4 @@
-function [model, accuracy] = generateSystemModel(class1Data, class0Data,...
+function [accuracy] = generateSystemModel(class1Data, class0Data,...
     modelPercentage, accuracyCutoff, probabilityCutoff, modelRuns)
 % GENERATELOGISTICREGRESSIONMODEL Generate a logistic regression model
 % CLASS1DATA A table of parameter values for class 1 data points
@@ -54,7 +54,7 @@ if accuracy < accuracyCutoff
         bestTree = treeTest;
     end
     end
-    model = bestTree;
+    %model = bestTree;
 else
-    model = [B dev stats];
+    %model = cell2struct([B dev stats]);
 end

@@ -58,7 +58,7 @@ numberCorrect = 0;
 for m = 1:length(guessedClasses)
     guess = guessedClasses(m);
     actual = testClasses(m);
-    if(strcmp(guess,actual)
+    if(strcmp(guess,actual))
         numberCorrect = numberCorrect + 1;
     end
 end
