@@ -1,4 +1,4 @@
-classdef DroneSystem
+classdef NewDroneSystem
     %DRONESYSTEM This class builds up a drone system
     %   Detailed explanation goes here
     
@@ -8,16 +8,16 @@ classdef DroneSystem
         % initialize detector with a placeholder so that it can be made
         % into an array of detector objects later on
         detectors = Detector();
-        localiz;
+        % localiz;
         audioRecorder;
         F_AXIS;
     end
     
     methods
-        function DS = DroneSystem(configSettings,kNNStuff)
+        function DS = NewDroneSystem(configSettings,kNNStuff)
             DS.c = configSettings.constants;
-            DS.localiz = localizer;
-            
+            % DS.localiz = localizer;
+            DS.c.NUM_CHANNELS = 1;
             % initialize one detector for each channel
             for i = 1:DS.c.NUM_CHANNELS
                 DS.detectors(i) = Detector(configSettings,kNNStuff);
