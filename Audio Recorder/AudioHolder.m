@@ -1,10 +1,9 @@
-classdef featureDetection < handle
+classdef AudioHolder < handle
     %DETECTOR A detector object
     
     properties (SetAccess = private)
         % c should be a struct that holds essential constants for detector
         c;
-        audioRecorder;
         bufferedAudio;
         F_AXIS;
         % a and b represent the coefficients for a Butterworth filter
@@ -13,14 +12,11 @@ classdef featureDetection < handle
         % FRAMES_HELD is the number of frames held per channel
         FRAMES_HELD;
         previousSpectrum;
-        spectrumCentroid;
-        dominantFrequency;
-        dominantFrequencyValue;
     end
     
     methods
          
-        function D = featureDetection(configSettings,kNNStruct)
+        function D = AudioHolder(configSettings,kNNStruct)
             if(nargin>0)
                 Wn = (1500 * 2)/44100;
                 n = 3;
@@ -56,9 +52,6 @@ classdef featureDetection < handle
             
             % feature calculation
             D.previousSpectrum = spectrum;
-            %[D.spectrumCentroid centroidValue] = GetSpectrumCentroid(D.bufferedAudio);
-            [D.dominantFrequencyValue dominantFrequency] = ...
-                GetDominantFrequency(lowpassedAudioFrame);
             
             
         end
@@ -67,10 +60,8 @@ classdef featureDetection < handle
            lastSpectrum = D.previousSpectrum; 
         end
         
-        function features = getFeatures(D)
-            features = D.dominantFrequencyValue;
-            %features = vertcat(D.dominantFrequency,...
-            %    D.dominantFrequencyValue, D.spectrumCentroid);
+        function buffer = getBuffer(D)
+            buffer = D.bufferedAudio;
         end
         
         function spectrum = spectro(D)
