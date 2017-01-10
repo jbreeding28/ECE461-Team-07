@@ -86,6 +86,7 @@ classdef AudioRecorder4Channel
             end
             
             end
+            close(gcf);
         end
         
        
@@ -117,7 +118,7 @@ classdef AudioRecorder4Channel
             hp(4) = plot(DS.F_AXIS,zeros(1,DS.c.WINDOW_SIZE/2+1));
             ha(4) = gca;
             set(ha(4),'YLimMode','manual')
-            set(ha(4),'YLim',[0 40],'XLim',[150 20E3])
+            set(ha(4),'YLim',[0 40],'XLim',[0 20E3])
             set(ha(4),'Xscale','log')
             title('Microphone 4')
             
@@ -127,17 +128,23 @@ classdef AudioRecorder4Channel
                 'Position',[500,5,50,20],'Callback', @closeWindow_Callback);
             function saveAudio_Callback(hObject, eventdata)
                 [FileName,PathName] = uiputfile('.wav','Save Audio');
+                bufferSize = length(DS.recorders(1).getBuffer());
+                fileData = zeros(4,bufferSize);
+                fileNames = cell(4,1);
+                fileNameLength = length(FileName);
+                fileExtension = FileName(fileNameLength - 3 : fileNameLength);
+                trueFileName = FileName(1:fileNameLength - 4);
                 for i = 1:DS.c.NUM_CHANNELS
-                    fileData(i) = DS.recorders(i).getBuffer();
-                    fileNames(i) = [PathName FileName '_' num2str(i)];
-                    audiowrite(fileNames(i),fileData(i),44100);
+                    fileData(i,:) = DS.recorders(i).getBuffer();
+                    fileNames(i) = cellstr([PathName trueFileName '_' num2str(i) fileExtension]);
+                    audiowrite(char(fileNames(i)),fileData(i,:),44100);
                 end
                 
                 
             end
             function closeWindow_Callback(hObject, eventdata)
                 DS.shutdown = 1;
-                close(gcf);
+                
             end
             % text boxes for displaying the output of each detector
             % (and information relevant to testing)
