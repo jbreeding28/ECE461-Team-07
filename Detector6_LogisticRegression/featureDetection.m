@@ -8,8 +8,10 @@ classdef featureDetection < handle
         bufferedAudio;
         F_AXIS;
         % a and b represent the coefficients for a Butterworth filter
-        a;
-        b;
+        aLow;
+        bLow;
+        aHigh;
+        bHigh;
         % FRAMES_HELD is the number of frames held per channel
         FRAMES_HELD;
         previousSpectrum;
@@ -22,9 +24,11 @@ classdef featureDetection < handle
          
         function D = featureDetection(configSettings,kNNStruct)
             if(nargin>0)
-                Wn = (1500 * 2)/44100;
+                WnLow = (1000 * 2)/44100;
+                WnHigh = (16000 * 2)/44100;
                 n = 3;
-                [D.b D.a] = butter(n,Wn);
+                [D.bHigh D.aHigh] = butter(n,WnLow,'high');
+                [D.bLow D.aLow] = butter(n,WnHigh,'low');
                 D.c = configSettings.constants;
                 D.F_AXIS = linspace(0,D.c.Fs/2,D.c.WINDOW_SIZE/2+1);
                 D.FRAMES_HELD = ceil(D.c.TIME_TO_SAVE*D.c.Fs/D.c.FRAME_SIZE);
@@ -44,21 +48,21 @@ classdef featureDetection < handle
         %   publicly.
         
             % lowpass filter the frame
-            lowpassedAudioFrame = filter(D.b,D.a,singleAudioFrame);
+            lowpassedAudioFrame = filter(D.bLow,D.aLow,singleAudioFrame);
+            highpassedAudioFrame = filter(D.bHigh,D.aHigh,lowpassedAudioFrame);
             % step the buffer
             
-            D.bufferedAudio = [lowpassedAudioFrame; ...
+            D.bufferedAudio = [highpassedAudioFrame; ...
                 D.bufferedAudio(1:((D.FRAMES_HELD-1)*D.c.FRAME_SIZE))];
-            
             % spectrogram on the buffered audio, then return the relevant
             % spectrum (one slice of the spectrogram)
             spectrum = D.spectro();
             
             % feature calculation
             D.previousSpectrum = spectrum;
-            %[D.spectrumCentroid centroidValue] = GetSpectrumCentroid(D.bufferedAudio);
-            [D.dominantFrequencyValue dominantFrequency] = ...
-                GetDominantFrequency(lowpassedAudioFrame);
+            [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(D.bufferedAudio);
+            [D.dominantFrequencyValue D.dominantFrequency] = ...
+                GetDominantFrequency(D.bufferedAudio);
             
             
         end
@@ -68,9 +72,9 @@ classdef featureDetection < handle
         end
         
         function features = getFeatures(D)
-            features = D.dominantFrequencyValue;
-            %features = vertcat(D.dominantFrequency,...
-            %    D.dominantFrequencyValue, D.spectrumCentroid);
+            %features = D.dominantFrequencyValue;
+            features = vertcat(D.dominantFrequency,...
+                D.dominantFrequencyValue);
         end
         
         function spectrum = spectro(D)

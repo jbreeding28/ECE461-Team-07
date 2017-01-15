@@ -1,5 +1,5 @@
 clear all;
-load('DronesAndEnvironmentalNoiseData.mat');
+load('AnechoicTestingData.mat');
 % extract data from fisheriris to use only two categories
 classes = ClassNumber;
 class0 = classes(1);
@@ -30,12 +30,12 @@ testData = vertcat(class1Test,class0Test);
 class1Identifier = 'drone';
 class0Identifier = 'non-drone';
 % Sets up the proper length arrays
-class1 = cell(length(class1Model),1);
-class1Test = cell(length(class1Test),1);
+class1 = cell(size(class1Model,1),1);
+class1Test = cell(size(class1Test,1),1);
 class1Test(:) = {class1Identifier};
 class1(:) = {class1Identifier};
-class0 = cell(length(class0Model),1);
-class0Test = cell(length(class0Test),1);
+class0 = cell(size(class0Model,1),1);
+class0Test = cell(size(class0Test,1),1);
 class0(:) = {class0Identifier};
 class0Test(:) = {class0Identifier};
 modelClasses = categorical(vertcat(class1,class0));

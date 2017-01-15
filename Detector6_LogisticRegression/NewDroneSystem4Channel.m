@@ -1,4 +1,4 @@
-classdef AudioRecorder4Channel
+classdef NewDroneSystem4Channel
     %NEWDRONESYSTEM This class builds up a drone system
     %   Detailed explanation goes here
     
@@ -6,25 +6,57 @@ classdef AudioRecorder4Channel
         % c holds constants
         c;
         % B holds the logistic regression model
+        B;
+        Boffset;
+        Bslopes;
+        % cutoff holds the cutoff accuracy for drones
+        cutoff;
         % initialize detector with a placeholder so that it can be made
         % into an array of detector objects later on
-        recorders = AudioHolder();
+        detectors = featureDetection();
+        probabilities;
+        droneProbabilityCutoff;
+        features;
         localiz;
         audioRecorder;
         F_AXIS;
         data;
-        shutdown;
     end
     
     methods
-        function DS = AudioRecorder4Channel(configSettings,kNNStuff)
-            DS.shutdown = 0;
+        function DS = NewDroneSystem4Channel(configSettings,kNNStuff)
+            load('AnechoicTestingData.mat');
             DS.c = configSettings.constants;
             % DS.localiz = localizer;
-            DS.c.NUM_CHANNELS = 4;
+            classes = ClassNumber;
+            %features = double(DominantFrequencyValue);
+            DS.features = cell(DS.c.NUM_CHANNELS,1);
+            modelFeatures = horzcat(double(DominantFrequency),double(DominantFrequencyValue));
+            %    double(SpectrumCentroid));
+            class0Endpoint = 1;
+            for n = 1:length(classes)
+                if(~eq(classes(n),classes(1)))
+                    class0Endpoint = n - 1;
+                    break;
+                end
+            end
+            modelPercentage = 0.5;
+            probabilityCutoff = 0.65;
+            DS.droneProbabilityCutoff = 0.65;
+            modelRuns = 10;
+
+            class0Data = modelFeatures(1:class0Endpoint,:);
+            class1Data = modelFeatures(class0Endpoint + 1:size(modelFeatures,1),:);
+            [B, dev, stats, accuracy] = ...
+                generateSystemModel(class1Data, class0Data,...
+                modelPercentage, probabilityCutoff, modelRuns)
+            DS.B = B;
+            DS.Boffset = B(1);
+            DS.Bslopes = B(2:length(DS.B));
+            DS.cutoff = probabilityCutoff;
             % initialize one detector for each channel
             for i = 1:DS.c.NUM_CHANNELS
-                DS.recorders(i) = AudioHolder(configSettings,kNNStuff);
+                DS.detectors(i) = featureDetection(configSettings,kNNStuff);
             end
             
             DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
@@ -43,40 +75,41 @@ classdef AudioRecorder4Channel
         
         function start(DS)
             % setup the live plots
+            decisions = {'1'; '2'; '3'; '4'};
             
-            [hFig, hp, ha] = DS.figureSetup();
+            [hFig, hp, ha, hTextBox] = DS.figureSetup(decisions);
             
+            numPointsFeatureSpace = 100;
             
             % features over time
             load('image_config.mat');
             % eventually, put the below line in the if statement below
             % DS.localiz.configImViewer(hIm);
-            
+            parpool(4)
             % MAIN LOOP
-            while(~DS.shutdown)
+            while(1)
             try
                 audioFrame = step(DS.audioRecorder);
-                for i = 1:DS.c.NUM_CHANNELS
-                    DS.recorders(i).step(audioFrame(:,i));
+                parfor i = 1:4
+                    DS.detectors(i).step(audioFrame(:,i));
+                    %DS.features(i) = cell(DS.detectors(i).getFeatures());
+                    %relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
+                    %DS.probabilities(i) = relativeProb./(1+relativeProb);
                     %stringOutput = [prob];
                     %set(hTextBox(i),'String',stringOutput);
                 end
-%                 set(hp(1),'YData',DS.detectors(1).getEnergy(),'XData',...
-%                     DS.detectors(i).getFlux());
-%                 set(hp(2),'YData',DS.detectors(1).getPreviousSpectrum());
-                
-                %set(hp(1),'YData',f0s,'XData', fluxes,'ZData',zcrs);
+                %decision = droneDecision(DS.probabilities);
                 set(hp(1),'XData',DS.F_AXIS,'YData',...
-                   DS.recorders(1).getPreviousSpectrum());
+                   DS.detectors(1).getPreviousSpectrum());
                 drawnow;
                 set(hp(2),'XData',DS.F_AXIS,'YData',...
-                   DS.recorders(2).getPreviousSpectrum());
+                   DS.detectors(2).getPreviousSpectrum());
                 drawnow;
                 set(hp(3),'XData',DS.F_AXIS,'YData',...
-                   DS.recorders(3).getPreviousSpectrum());
+                   DS.detectors(3).getPreviousSpectrum());
                 drawnow;
                 set(hp(4),'XData',DS.F_AXIS,'YData',...
-                   DS.recorders(4).getPreviousSpectrum());
+                   DS.detectors(4).getPreviousSpectrum());
                 drawnow;
                 
                 % if there is a complete setup, run the localizer
@@ -86,12 +119,13 @@ classdef AudioRecorder4Channel
             end
             
             end
-            close(gcf);
         end
         
-       
-        function [hFig, hp, ha] = figureSetup(DS)
-        %FIGURESETUP a function used to setup a figure for testing purposes
+%         function localizerStep(DS,Af1,Af2,Af3,Af4)
+%             DS.localiz.direction()
+%         end 
+
+        function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)
             hFig = figure();
             subplot(2,2,1);            
             hp(1) = plot(DS.F_AXIS,zeros(1,DS.c.WINDOW_SIZE/2+1));
@@ -121,42 +155,27 @@ classdef AudioRecorder4Channel
             set(ha(4),'YLim',[0 40],'XLim',[0 20E3]);
             set(ha(4),'Xscale','log');
             title('Microphone 4');
-            
-            saveButton = uicontrol('Style','pushbutton','String','Save',...
-                'Position',[10,5,50,20],'Callback', @saveAudio_Callback);
-            closeButton = uicontrol('Style','pushbutton','String','Close',...
-                'Position',[500,5,50,20],'Callback', @closeWindow_Callback);
-            function saveAudio_Callback(hObject, eventdata)
-                [FileName,PathName] = uiputfile('.wav','Save Audio');
-                bufferSize = length(DS.recorders(1).getBuffer());
-                fileData = zeros(4,bufferSize);
-                fileNames = cell(4,1);
-                fileNameLength = length(FileName);
-                fileExtension = FileName(fileNameLength - 3 : fileNameLength);
-                trueFileName = FileName(1:fileNameLength - 4);
-                for i = 1:DS.c.NUM_CHANNELS
-                    fileData(i,:) = DS.recorders(i).getBuffer();
-                    fileNames(i) = cellstr([PathName trueFileName '_' num2str(i) fileExtension]);
-                    audiowrite(char(fileNames(i)),fileData(i,:),44100);
-                end
-                
-                
+            for i = 1:DS.c.NUM_CHANNELS
+                hTextBox(i) = uicontrol('style','text');
+                set(hTextBox(i),'String',decisions(i));
+                set(hTextBox(i),'Position',[0 30*i 300 25])
             end
-            function closeWindow_Callback(hObject, eventdata)
-                DS.shutdown = 1;
-                
-            end
-            % text boxes for displaying the output of each detector
-            % (and information relevant to testing)
-            %for i = 1:DS.c.NUM_CHANNELS
-            %    hTextBox(i) = uicontrol('style','text');
-            %    set(hTextBox(i),'String',decisions(i));
-            %    set(hTextBox(i),'Position',[0 30*i 300 25])
-            %end
             
             % localizer image
             %figure
             %hIm = imshow(zeros(501,501,3));
+        end
+        
+        function decision = droneDecision(DS, probabilities)
+            decision = any(probabilityClassification(probabilities),1);
+        end
+        
+        function decisions = probabilityClassifictaion(DS, probabilities)
+            decisions = (probabilities >= DS.droneProbabilityCutoff);
+        end
+        
+        function calibration(DS)
+            % potentially something to implement in the future
         end
         
     end

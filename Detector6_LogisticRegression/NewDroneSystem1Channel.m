@@ -22,13 +22,13 @@ classdef NewDroneSystem1Channel
     
     methods
         function DS = NewDroneSystem1Channel(configSettings,kNNStuff)
-            load('DronesAndEnvironmentalNoiseData.mat');
+            load('AnechoicTestingData.mat');
             DS.c = configSettings.constants;
             % DS.localiz = localizer;
             DS.c.NUM_CHANNELS = 1;
             classes = ClassNumber;
-            features = double(DominantFrequencyValue);
-            %features = horzcat(double(DominantFrequency),double(DominantFrequencyValue),...
+            %features = double(DominantFrequencyValue);
+            features = horzcat(double(DominantFrequency),double(DominantFrequencyValue));
             %    double(SpectrumCentroid));
             class0Endpoint = 1;
             for n = 1:length(classes)
@@ -55,13 +55,13 @@ classdef NewDroneSystem1Channel
                 DS.detectors(i) = featureDetection(configSettings,kNNStuff);
             end
             
-            DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
-                DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'DeviceName', ...
-                configSettings.audioDriver,'NumChannels', ...
-                DS.c.NUM_CHANNELS);
             %DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
-            %    DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'NumChannels', ...
+            %    DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'DeviceName', ...
+            %    configSettings.audioDriver,'NumChannels', ...
             %    DS.c.NUM_CHANNELS);
+            DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
+                DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'NumChannels', ...
+                DS.c.NUM_CHANNELS);
             
             
             DS.F_AXIS = linspace(0,DS.c.Fs/2,DS.c.WINDOW_SIZE/2+1);
@@ -87,12 +87,12 @@ classdef NewDroneSystem1Channel
             try
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
-                    DS.detectors(i).step(audioFrame(:,i));
-                    features = DS.detectors(i).getFeatures()
-                    relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
-                    prob = relativeProb./(1+relativeProb);
-                    stringOutput = [prob];
-                    set(hTextBox(i),'String',stringOutput);
+                    DS.detectors(1).step(audioFrame(:,1));
+                    %features = DS.detectors(i).getFeatures();
+                    %relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
+                    %prob = relativeProb./(1+relativeProb);
+                    %stringOutput = [prob];
+                    %set(hTextBox(i),'String',stringOutput);
                 end
 %                 set(hp(1),'YData',DS.detectors(1).getEnergy(),'XData',...
 %                     DS.detectors(i).getFlux());
@@ -183,7 +183,7 @@ classdef NewDroneSystem1Channel
             hp(2) = plot(DS.F_AXIS,zeros(1,DS.c.WINDOW_SIZE/2+1));
             ha(2) = gca;
             set(ha(2),'YLimMode','manual')
-            set(ha(2),'YLim',[0 40],'XLim',[150 20E3])
+            set(ha(2),'YLim',[0 1],'XLim',[0 20E3])
             set(ha(2),'Xscale','log')
             title('Current spectrum')
             
