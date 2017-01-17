@@ -21,17 +21,19 @@ classdef NewDroneSystem4Channel
         audioRecorder;
         F_AXIS;
         data;
+        shutdown;
     end
     
     methods
         function DS = NewDroneSystem4Channel(configSettings,kNNStuff)
             load('AnechoicTestingData.mat');
             DS.c = configSettings.constants;
+            DS.shutdown = 0;
             % DS.localiz = localizer;
             classes = ClassNumber;
             %features = double(DominantFrequencyValue);
-            DS.features = cell(DS.c.NUM_CHANNELS,1);
             modelFeatures = horzcat(double(DominantFrequency),double(DominantFrequencyValue));
+            DS.features = zeros(size(modelFeatures,2),DS.c.NUM_CHANNELS);
             %    double(SpectrumCentroid));
             class0Endpoint = 1;
             for n = 1:length(classes)
@@ -85,32 +87,39 @@ classdef NewDroneSystem4Channel
             load('image_config.mat');
             % eventually, put the below line in the if statement below
             % DS.localiz.configImViewer(hIm);
-            parpool(4)
             % MAIN LOOP
-            while(1)
+            shutdown = 0;
+            while(~shutdown)
             try
                 audioFrame = step(DS.audioRecorder);
-                parfor i = 1:4
-                    DS.detectors(i).step(audioFrame(:,i));
-                    %DS.features(i) = cell(DS.detectors(i).getFeatures());
-                    %relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
-                    %DS.probabilities(i) = relativeProb./(1+relativeProb);
-                    %stringOutput = [prob];
-                    %set(hTextBox(i),'String',stringOutput);
+                getFeatures = false(DS.c.NUM_CHANNELS,1);
+                relativeProbs = zeros(DS.c.NUM_CHANNELS,1);
+                probs = zeros(DS.c.NUM_CHANNELS,1);
+                pwrs = zeros(DS.c.NUM_CHANNELS,1);
+                for i = 1:DS.c.NUM_CHANNELS
+                    getFeatures(i) = DS.detectors(i).step(audioFrame(:,i));
+                    if getFeatures(i)
+                        DS.features(:,i) = DS.detectors(i).getFeatures();
+                        relativeProbs(i) = exp(DS.Boffset + sum(DS.Bslopes.*DS.features(:,i)));
+                        if isinf(relativeProbs(i))
+                            probs(i) = 1;
+                        else
+                            probs(i) = relativeProbs(i)./(1+relativeProbs(i));
+                        end
+                        pwrs(i) = DS.detectors(i).getPwrDB();
+                        %stringOutput = DS.shutdown;
+                        stringOutput = [num2str(probs(i)) '    ' num2str(pwrs(i))];
+                        set(hTextBox(i),'String',stringOutput);
+                    end
                 end
                 %decision = droneDecision(DS.probabilities);
-                set(hp(1),'XData',DS.F_AXIS,'YData',...
-                   DS.detectors(1).getPreviousSpectrum());
+                for i = 1:DS.c.NUM_CHANNELS
+                set(hp(i),'XData',DS.F_AXIS,'YData',...
+                   DS.detectors(i).getPreviousSpectrum());
                 drawnow;
-                set(hp(2),'XData',DS.F_AXIS,'YData',...
-                   DS.detectors(2).getPreviousSpectrum());
-                drawnow;
-                set(hp(3),'XData',DS.F_AXIS,'YData',...
-                   DS.detectors(3).getPreviousSpectrum());
-                drawnow;
-                set(hp(4),'XData',DS.F_AXIS,'YData',...
-                   DS.detectors(4).getPreviousSpectrum());
-                drawnow;
+                end
+                
+                shutdown = getappdata(hFig,'shutdown');
                 
                 % if there is a complete setup, run the localizer
             catch ME
@@ -119,6 +128,8 @@ classdef NewDroneSystem4Channel
             end
             
             end
+            
+            close(gcf);
         end
         
 %         function localizerStep(DS,Af1,Af2,Af3,Af4)
@@ -127,6 +138,7 @@ classdef NewDroneSystem4Channel
 
         function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)
             hFig = figure();
+            setappdata(hFig,'shutdown',0);
             subplot(2,2,1);            
             hp(1) = plot(DS.F_AXIS,zeros(1,DS.c.WINDOW_SIZE/2+1));
             ha(1) = gca;
@@ -161,10 +173,18 @@ classdef NewDroneSystem4Channel
                 set(hTextBox(i),'Position',[0 30*i 300 25])
             end
             
+            closeButton = uicontrol('Style','pushbutton','String','Close',...
+                'Position',[500,5,50,20],'Callback', @closeWindow_Callback);
+            
+            function closeWindow_Callback(hObject, eventdata)
+                setappdata(hObject.Parent, 'shutdown', 1);
+            end
+            
             % localizer image
             %figure
             %hIm = imshow(zeros(501,501,3));
         end
+        
         
         function decision = droneDecision(DS, probabilities)
             decision = any(probabilityClassification(probabilities),1);

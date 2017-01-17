@@ -85,14 +85,19 @@ classdef NewDroneSystem1Channel
             % MAIN LOOP
             while(1)
             try
+                getFeatures = false(1);
                 audioFrame = step(DS.audioRecorder);
                 for i = 1:DS.c.NUM_CHANNELS
-                    DS.detectors(1).step(audioFrame(:,1));
-                    %features = DS.detectors(i).getFeatures();
-                    %relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
-                    %prob = relativeProb./(1+relativeProb);
-                    %stringOutput = [prob];
-                    %set(hTextBox(i),'String',stringOutput);
+                    getFeatures = DS.detectors(1).step(audioFrame(:,1));
+                    %Disp(char(getFeatures));
+                    if getFeatures
+                        features = DS.detectors(i).getFeatures();
+                        relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
+                        prob = relativeProb./(1+relativeProb);
+                        pwr = DS.detectors(1).getPwrDB()
+                        stringOutput = [num2str(prob) '    ' num2str(pwr)];
+                        set(hTextBox(i),'String',stringOutput);
+                    end
                 end
 %                 set(hp(1),'YData',DS.detectors(1).getEnergy(),'XData',...
 %                     DS.detectors(i).getFlux());
