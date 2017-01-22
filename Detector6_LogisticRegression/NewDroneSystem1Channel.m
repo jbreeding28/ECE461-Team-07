@@ -22,7 +22,7 @@ classdef NewDroneSystem1Channel
     
     methods
         function DS = NewDroneSystem1Channel(configSettings,kNNStuff)
-            load('AnechoicTestingData.mat');
+            load('DataCollection_1_18_2017.mat');
             DS.c = configSettings.constants;
             % DS.localiz = localizer;
             DS.c.NUM_CHANNELS = 1;
@@ -81,9 +81,9 @@ classdef NewDroneSystem1Channel
             load('image_config.mat');
             % eventually, put the below line in the if statement below
             % DS.localiz.configImViewer(hIm);
-            
+            shutdown = 0;
             % MAIN LOOP
-            while(1)
+            while(~shutdown)
             try
                 getFeatures = false(1);
                 audioFrame = step(DS.audioRecorder);
@@ -94,7 +94,8 @@ classdef NewDroneSystem1Channel
                         features = DS.detectors(i).getFeatures();
                         relativeProb = exp(DS.Boffset + sum(DS.Bslopes.*features));
                         prob = relativeProb./(1+relativeProb);
-                        pwr = DS.detectors(1).getPwrDB()
+                        %prob = 1;
+                        pwr = DS.detectors(1).getPwrDB();
                         stringOutput = [num2str(prob) '    ' num2str(pwr)];
                         set(hTextBox(i),'String',stringOutput);
                     end
@@ -107,7 +108,7 @@ classdef NewDroneSystem1Channel
                 set(hp(2),'XData',DS.F_AXIS,'YData',...
                    DS.detectors(1).getPreviousSpectrum());
                 drawnow;
-                
+                shutdown = getappdata(hFig,'shutdown');
                 % if there is a complete setup, run the localizer
             catch ME
                 % DS.localiz.historyToWorkspace();
@@ -115,6 +116,8 @@ classdef NewDroneSystem1Channel
             end
             
             end
+            
+            close(gcf);
         end
         
         function [decisionNums,fluxes,energies] = test(DS,singleAudioFrame)
@@ -162,6 +165,7 @@ classdef NewDroneSystem1Channel
         function [hFig, hp, ha, hTextBox] = figureSetup(DS, decisions)
         %FIGURESETUP a function used to setup a figure for testing purposes
             hFig = figure();
+            setappdata(hFig,'shutdown',0);
             subplot(2,1,1);
             % 2D plot
 %             hp(1) = plot(1,1,'O');
@@ -198,6 +202,13 @@ classdef NewDroneSystem1Channel
                 hTextBox(i) = uicontrol('style','text');
                 set(hTextBox(i),'String',decisions(i));
                 set(hTextBox(i),'Position',[0 30*i 300 25])
+            end
+            
+            closeButton = uicontrol('Style','pushbutton','String','Close',...
+                'Position',[500,5,50,20],'Callback', @closeWindow_Callback);
+            
+            function closeWindow_Callback(hObject, eventdata)
+                setappdata(hObject.Parent, 'shutdown', 1);
             end
             
             % localizer image

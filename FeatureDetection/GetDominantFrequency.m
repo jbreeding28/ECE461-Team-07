@@ -1,11 +1,11 @@
-function [peakValue, peakFreq] = GetDominantFrequency(waveform, Fs, values)
-if(nargin < 3)
+function [peakValue, peakFreq] = GetDominantFrequency(spectrum, Fs, values)
+if(nargin < 2)
    values = 1;
    Fs = 44100;
 end
-S = abs(fftshift(fft(waveform)));
-f = linspace(-Fs/2,Fs/2,length(S)); 
-[sortedValue, sortedFreqIndex] = sort(S(round(length(S)/2):round(length(S))),'descend');
+
+f = linspace(-Fs/2,Fs/2,length(spectrum)); 
+[sortedValue, sortedFreqIndex] = sort(spectrum(round(length(spectrum)/2):round(length(spectrum))),'descend');
 %sortedFreqIndex = sortedFreqIndex + length(S)/2;
 % pointsToSave = zeros([1,values]);
 % peakValue = zeros([1,values]);

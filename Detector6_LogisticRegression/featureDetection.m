@@ -16,8 +16,20 @@ classdef featureDetection < handle
         FRAMES_HELD;
         previousSpectrum;
         spectrumCentroid;
-        dominantFrequency;
-        dominantFrequencyValue;
+        domFreq1;
+        domFreq2;
+        domFreq3;
+        domFreq4;
+        domFreq5;
+        domValue1;
+        domValue2;
+        domValue3;
+        domValue4;
+        domValue5;
+        silence;
+        spectralFlux;
+        zcr;
+        energy;
         bufferCount;
     end
     
@@ -64,10 +76,29 @@ classdef featureDetection < handle
             D.previousSpectrum = spectrum;
             D.bufferCount = D.bufferCount + 1;
             if D.bufferCount == D.FRAMES_HELD
-                [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(D.bufferedAudio);
-                [D.dominantFrequencyValue D.dominantFrequency] = ...
-                GetDominantFrequency(D.bufferedAudio);
+                transform = abs(fftshift(fft(D.bufferedAudio)));
+                binsize_Hz = (D.c.Fs/2)/(D.c.WINDOW_SIZE/2+1);
+                midPoint = ceil(length(transform)/2);
+                transform(midPoint - ceil(150/binsize_Hz):...
+                    midPoint + ceil(150/binsize_Hz) + 1) = 0;
+                [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(transform);
+                [dominantFrequencyValues dominantFrequencies] = GetPeaks(transform);
+                D.spectrumFlux = GetSpectrumFlux(D.bufferedAudio);
+                D.silence = GetSilencePercentage(D.bufferedAudio);
+                [STE, STEavg, D.energy] = GetEnergyInfo(D.bufferedAudio);
+                [STZCR, avgZCR, D.zcr] = GetZCRInfo(D.bufferedAudio)
+                D.domFreq1 = dominantFrequencies(1)
+                D.domFreq2 = dominantFrequencies(2);
+                D.domFreq3 = dominantFrequencies(3);
+                D.domFreq4 = dominantFrequencies(4);
+                D.domFreq5 = dominantFrequencies(5);
+                D.domValue1 = dominantFrequencyValues(1);
+                D.domValue2 = dominantFrequencyValues(2);
+                D.domValue3 = dominantFrequencyValues(3);
+                D.domValue4 = dominantFrequencyValues(4);
+                D.domValue5 = dominantFrequencyValues(5);
                 D.bufferCount = 0;
+                %D.silence = GetSilencePercentage(D.bufferedAudio);
                 featuresUpdated = true;
             end
             
@@ -80,9 +111,10 @@ classdef featureDetection < handle
         end
         
         function features = getFeatures(D)
-            %features = D.dominantFrequencyValue;
-            features = vertcat(D.dominantFrequency,...
-                D.dominantFrequencyValue);
+            %features = vertcat(D.domFreq1, D.domValue1);
+            features = vertcat(D.domFreq1,D.domFreq2,D.domFreq3,...
+                D.domValue1,D.domValue2,D.domValue3,...
+                D.silence,D.energy,D.zcr);
         end
         
         function pwrDB = getPwrDB(D)
