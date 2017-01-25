@@ -83,7 +83,7 @@ classdef featureDetection < handle
                     midPoint + ceil(150/binsize_Hz) + 1) = 0;
                 [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(transform);
                 [dominantFrequencyValues dominantFrequencies] = GetPeaks(transform);
-                D.spectrumFlux = GetSpectrumFlux(D.bufferedAudio);
+                D.spectralFlux = GetSpectrumFlux(D.bufferedAudio);
                 D.silence = GetSilencePercentage(D.bufferedAudio);
                 [STE, STEavg, D.energy] = GetEnergyInfo(D.bufferedAudio);
                 [STZCR, avgZCR, D.zcr] = GetZCRInfo(D.bufferedAudio)
@@ -112,9 +112,9 @@ classdef featureDetection < handle
         
         function features = getFeatures(D)
             %features = vertcat(D.domFreq1, D.domValue1);
-            features = vertcat(D.domFreq1,D.domFreq2,D.domFreq3,...
-                D.domValue1,D.domValue2,D.domValue3,...
-                D.silence,D.energy,D.zcr);
+            features = vertcat(D.domFreq1,D.domFreq2,...
+                D.domValue1,D.domValue2,...
+                D.energy);
         end
         
         function pwrDB = getPwrDB(D)

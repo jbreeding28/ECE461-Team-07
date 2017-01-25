@@ -74,9 +74,9 @@ classdef NewDroneSystem4Channel
             classes = ClassNumber;
             %features = double(DominantFrequencyValue);
             modelFeatures = horzcat(double(DominantFrequency),double(SecondHighestFrequency),...
-                double(ThirdHighestFrequency),double(DominantFrequencyValue),...
-                double(SecondHighestFrequencyValue),double(ThirdHighestFrequencyValue),...
-                double(Percentages),double(Energy),double(ZCR));
+                double(DominantFrequencyValue),...
+                double(SecondHighestFrequencyValue),...
+                double(Energy));
             %DS.features = zeros(size(modelFeatures,2),DS.c.NUM_CHANNELS);
             %    double(SpectrumCentroid));
             class0Endpoint = 1;
@@ -86,9 +86,9 @@ classdef NewDroneSystem4Channel
                     break;
                 end
             end
-            modelPercentage = AnswerDouble(2);
-            probabilityCutoff = AnswerDouble(1);
-            DS.droneProbabilityCutoff = AnswerDouble(1);
+            modelPercentage = 0.5;
+            probabilityCutoff = 0.65;
+            DS.droneProbabilityCutoff = 0.65;
             modelRuns = 30;
 
             class0Data = modelFeatures(1:class0Endpoint,:);
@@ -134,6 +134,7 @@ classdef NewDroneSystem4Channel
             % DS.localiz.configImViewer(hIm);
             % MAIN LOOP
             droneDetected = false;
+            decisions = zeros(4,1);
             shutdown = 0;
             while(~shutdown)
             try
@@ -156,27 +157,27 @@ classdef NewDroneSystem4Channel
                         end
                         pwrs(i) = DS.detectors(i).getPwrDB();
                         %stringOutput = DS.shutdown;
-                        stringOutput = [num2str(prob) '    ' num2str(pwrs(i))];
+                        stringOutput = [num2str(probs(5-i)) '    ' num2str(pwrs(5-i))];
                         set(hTextBox(i),'String',stringOutput);
-                        decisions = droneDecision(probs(i));
+                        decisions(i) = probs(i) >= DS.droneProbabilityCutoff;
                         decisionHistoryShifted = circshift(DS.detectionHistory(:,i),1);
-                        decisionHistoryShifted(1) = decision;
+                        decisionHistoryShifted(1) = decisions(i);
                         DS.detectionHistory(:,i) = decisionHistoryShifted;
                     end
                 end
                 if updateDetection
-                    oldDrone = newDroneDecision(DS.detectionHistory);
-                    if(droneDetected)
-                        disp('Old drone detected');
-                    else
-                        disp('New drone detected');
+                    %oldDrone = newDroneDecision(DS.detectionHistory);
+                    %if(droneDetected)
+                    %    disp('Old drone detected');
+                    %else
+                    %    disp('New drone detected');
                         % find the mic with the max probability and hold
                         % its features in the buffer for future analysis
-                        [maxProb, maxProbIndex] = max(probs);
-                        featureBufferShifted = circshift(DS.featureBuffer,1,2);
-                        featureBufferShifted(:,1) = features(:,maxProbIndex);
-                        DS.featureBuffer = featureBufferShifted;
-                    end
+                        %[maxProb, maxProbIndex] = max(probs);
+                        %featureBufferShifted = circshift(DS.featureBuffer,1,2);
+                        %featureBufferShifted(:,1) = features(:,maxProbIndex);
+                        %DS.featureBuffer = featureBufferShifted;
+                    %end
                 end
                 for i = 1:DS.c.NUM_CHANNELS
                 set(hp(i),'XData',DS.F_AXIS,'YData',...
@@ -251,12 +252,8 @@ classdef NewDroneSystem4Channel
         end
         
         
-        function decision = droneDecision(DS, probabilities)
-            decision = any(probabilityClassification(probabilities),1);
-        end
-        
-        function decisions = probabilityClassifictaion(DS, probabilities)
-            decisions = (probabilities >= DS.droneProbabilityCutoff);
+        function decision = droneDecision(DS, probability)
+            decision = (probability >= DS.droneProbabilityCutoff);
         end
         
         function decision = newDroneDecision(DS, detectionHistory)

@@ -1,10 +1,10 @@
 function percentage = GetSilencePercentage(waveform, Fs, threshold,baseline)
 if (nargin < 4)
-    baseline = 0.005;
+    baseline = 0.0001;
 end
 
 if (nargin < 3)
-    threshold = 0.15;
+    threshold = 0;
 end
 if (nargin < 2)
     Fs = 44100
