@@ -31,6 +31,7 @@ classdef featureDetection < handle
         zcr;
         energy;
         bufferCount;
+        transform;
     end
     
     methods
@@ -76,17 +77,17 @@ classdef featureDetection < handle
             D.previousSpectrum = spectrum;
             D.bufferCount = D.bufferCount + 1;
             if D.bufferCount == D.FRAMES_HELD
-                transform = abs(fftshift(fft(D.bufferedAudio)));
+                D.transform = abs(fftshift(fft(D.bufferedAudio)));
                 binsize_Hz = (D.c.Fs/2)/(D.c.WINDOW_SIZE/2+1);
-                midPoint = ceil(length(transform)/2);
-                transform(midPoint - ceil(150/binsize_Hz):...
+                midPoint = ceil(length(D.transform)/2);
+                D.transform(midPoint - ceil(150/binsize_Hz):...
                     midPoint + ceil(150/binsize_Hz) + 1) = 0;
-                [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(transform);
-                [dominantFrequencyValues dominantFrequencies] = GetPeaks(transform);
+                [D.spectrumCentroid centroidValue] = GetSpectrumCentroid(D.transform);
+                [dominantFrequencyValues dominantFrequencies] = GetPeaks(D.transform);
                 D.spectralFlux = GetSpectrumFlux(D.bufferedAudio);
                 D.silence = GetSilencePercentage(D.bufferedAudio);
                 [STE, STEavg, D.energy] = GetEnergyInfo(D.bufferedAudio);
-                [STZCR, avgZCR, D.zcr] = GetZCRInfo(D.bufferedAudio)
+                [STZCR, avgZCR, D.zcr] = GetZCRInfo(D.bufferedAudio);
                 D.domFreq1 = dominantFrequencies(1)
                 D.domFreq2 = dominantFrequencies(2);
                 D.domFreq3 = dominantFrequencies(3);
@@ -119,6 +120,14 @@ classdef featureDetection < handle
         
         function pwrDB = getPwrDB(D)
             pwrDB = mag2db(rms(D.bufferedAudio));
+        end
+        
+        function buffer = getBufferedAudio(D)
+            buffer = D.bufferedAudio();
+        end
+        
+        function transform = getTransform(D)
+            transform = D.transform();
         end
         
         function spectrum = spectro(D)
