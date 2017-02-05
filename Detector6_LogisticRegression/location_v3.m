@@ -1,4 +1,4 @@
-function [ zone, compass ] = location_v3(pwrs);
+function [ zone, compass ] = location_v3(pwrs)
 % Drone dB gains range from -89 dB (undetected) to -60 dB (Immediately next to the microphone)
 
 % speed of sound = 340.29 m/s
@@ -18,6 +18,8 @@ pwrDB2 = pwrs(3);
 pwrDB3 = pwrs(2);  % mic's reversed???
 pwrDB4 = pwrs(1);
 
+zone = 0;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
@@ -28,14 +30,15 @@ if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
         
     elseif ( ((pwrDB1 >= (pwrDB2 * 0.925)) && (pwrDB1 >= (pwrDB3 * 0.925)) && (pwrDB1 >= (pwrDB4 * 1))) && ( (pwrDB1 <= (pwrDB2 * 0.7)) && (pwrDB1 <= (pwrDB3 * 0.68)) && (pwrDB1 <= (pwrDB4 * 0.8)) ) )
         zone = 2;
-        compass = 'North North East';
+        compass = 'NorthNorthEast';
         
     elseif (  ((pwrDB1 >= (pwrDB2 * 1)) && (pwrDB1 >= (pwrDB3 * 0.925)) && (pwrDB1 >= (pwrDB4 * 0.925))) && ( (pwrDB1 <= (pwrDB2 * 0.8)) && (pwrDB1 <= (pwrDB3 * 0.68)) && (pwrDB1 <= (pwrDB4 * 0.7)) ) )
-        zone = 3;
-        compass = 'East North West';
+        zone = 12;
+        compass = 'NorthNorthWest';
         
     else
         compass = 'North';
+        zone = 13;
     end
            
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,19 +46,20 @@ if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
 elseif ( (pwrDB2 >= pwrDB1) && (pwrDB2 >= pwrDB3) && (pwrDB2 >= pwrDB4) )
     
     if ( ( (pwrDB2 >= (pwrDB3 * 0.7)) && (pwrDB2 >= (pwrDB4 * 0.68)) && (pwrDB2 >= (pwrDB1 * 0.8)) ) || ( (pwrDB2 >= (pwrDB3 * 0.8)) && (pwrDB2 >= (pwrDB4 * 0.68)) && (pwrDB2 >= (pwrDB1 * 0.7)) ) )
-        zone = 1;
+        zone = 4;
         compass = 'East';
         
     elseif ( ((pwrDB2 >= (pwrDB3 * 0.925)) && (pwrDB2 >= (pwrDB4 * 0.925)) && (pwrDB2 >= (pwrDB1 * 1))) && ( (pwrDB2 <= (pwrDB3 * 0.7)) && (pwrDB2 <= (pwrDB4 * 0.68)) && (pwrDB2 <= (pwrDB1 * 0.8)) ) )
-        zone = 2;
-        compass = 'East North East';
+        zone = 3;
+        compass = 'EastNorthEast';
         
     elseif (  ((pwrDB2 >= (pwrDB3 * 1)) && (pwrDB2 >= (pwrDB4 * 0.925)) && (pwrDB2 >= (pwrDB1 * 0.925))) && ( (pwrDB2 <= (pwrDB3 * 0.8)) && (pwrDB2 <= (pwrDB4 * 0.68)) && (pwrDB2 <= (pwrDB1 * 0.7)) ) )
-        zone = 3;
-        compass = 'East South East';
+        zone = 5;
+        compass = 'EastSouthEast';
         
     else
         compass = 'East';
+        zone = 14;
     end
         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,13 +81,15 @@ elseif ( (pwrDB2 >= pwrDB1) && (pwrDB2 >= pwrDB3) && (pwrDB2 >= pwrDB4) )
 %     compass = 'North West';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+else
+    compass = 'Inside?'
+    zone = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
 
-display('compass')
+display(zone)
+display(compass)
 
 end

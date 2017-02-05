@@ -184,6 +184,9 @@ classdef NewDroneSystem4Channel
                         disp('Old drone detected');
                         previousDetection = currentDrone;
                         DS.finalZone = zone;
+                        % database match code is commented out because it
+                        % doesn't work.
+                        % DS.databaseMatch();
                         %heading = headingDetector(DS.initialZone, DS.finalZone);
                         %disp(heading);
                     elseif(currentDrone)
@@ -193,7 +196,7 @@ classdef NewDroneSystem4Channel
                         previousDetection = true;
                         DS.initialZone = zone;
                         %[maxProb, maxProbIndex] = max(probs);
-                        DS.databaseMatch();
+                        
                     else
                         disp('No drone detected');
                         previousDetection = false;
