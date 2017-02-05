@@ -17,7 +17,8 @@ classdef NewDroneSystem4Channel
         % into an array of detector objects later on
         detectors = featureDetection();
         probabilities;
-        droneProbabilityCutoff;
+        probabilityCutoff;
+        modelPercentage
         features;
         localiz;
         audioRecorder;
@@ -62,6 +63,8 @@ classdef NewDroneSystem4Channel
                 both = lessThanOne .* greaterThanZero;
                 if(all(both))
                     successful = 1;
+                    DS.probabilityCutoff = answerDouble(1);
+                    DS.modelPercentage = answerDouble(2);
                 else
                     disp('Error. Values must be numbers between 0 and 1');
                 end
@@ -85,7 +88,8 @@ classdef NewDroneSystem4Channel
             modelFeatures = horzcat(double(DominantFrequency),double(SecondHighestFrequency),...
                 double(DominantFrequencyValue),...
                 double(SecondHighestFrequencyValue),...
-                double(Energy));
+                double(Energy),...
+                double(Percentages));
             
             %    double(SpectrumCentroid));
             class0Endpoint = 1;
@@ -95,20 +99,19 @@ classdef NewDroneSystem4Channel
                     break;
                 end
             end
-            modelPercentage = 0.5;
-            probabilityCutoff = 0.65;
-            DS.droneProbabilityCutoff = 0.65;
+            %modelPercentage = 0.5;
+            %DS.probabilityCutoff = 0.65;
             modelRuns = 30;
 
             DS.class0Data = modelFeatures(1:class0Endpoint,:);
             DS.class1Data = modelFeatures(class0Endpoint + 1:size(modelFeatures,1),:);
             [B, dev, stats, accuracy] = ...
                 generateSystemModel(DS.class1Data, DS.class0Data,...
-                modelPercentage, probabilityCutoff, modelRuns)
+                DS.modelPercentage, DS.probabilityCutoff, modelRuns)
             DS.B = B;
             DS.Boffset = B(1);
             DS.Bslopes = B(2:length(DS.B));
-            DS.cutoff = probabilityCutoff;
+            %DS.cutoff = probabilityCutoff;
             % initialize one detector for each channel
             DS.features = zeros(size(modelFeatures,2),DS.c.NUM_CHANNELS);
             for i = 1:DS.c.NUM_CHANNELS
@@ -136,7 +139,6 @@ classdef NewDroneSystem4Channel
             
             [hFig, hp, ha, hTextBox] = DS.figureSetup(decisions);
             
-            numPointsFeatureSpace = 100;
             
             % features over time
             load('image_config.mat');
@@ -146,10 +148,9 @@ classdef NewDroneSystem4Channel
             decisions = zeros(4,1);
             shutdown = 0;
             previousDetection = false;
-            parPool = gcp();
             while(~shutdown)
             try
-                audioFrame = step(DS.audioRecorder);
+                audioFrame = fliplr(step(DS.audioRecorder));
                 getFeatures = false(DS.c.NUM_CHANNELS,1);
                 relativeProbs = zeros(DS.c.NUM_CHANNELS,1);
                 probs = zeros(DS.c.NUM_CHANNELS,1);
@@ -170,21 +171,21 @@ classdef NewDroneSystem4Channel
                         %stringOutput = DS.shutdown;
                         stringOutput = [num2str(probs(i)) '    ' num2str(pwrs(i))];
                         set(hTextBox(i),'String',stringOutput);
-                        decisions(i) = probs(i) >= DS.droneProbabilityCutoff;
+                        decisions(i) = probs(i) >= DS.probabilityCutoff;
                         decisionHistoryShifted = circshift(DS.detectionHistory(:,i),1);
                         decisionHistoryShifted(1) = decisions(i);
                         DS.detectionHistory(:,i) = decisionHistoryShifted;
                     end
                 end
                 if updateDetection
-                    [zone, compass] = location_v2(pwrs);
+                    [zone, compass] = location_v3(pwrs);
                     [oldDrone, currentDrone] = DS.newDroneDecision();
                     if(oldDrone || previousDetection)
                         disp('Old drone detected');
                         previousDetection = currentDrone;
                         DS.finalZone = zone;
-                        heading = headingDetector(DS.initialZone, DS.finalZone);
-                        disp(heading);
+                        %heading = headingDetector(DS.initialZone, DS.finalZone);
+                        %disp(heading);
                     elseif(currentDrone)
                         disp('New drone detected');
                         % find the mic with the max probability and hold
@@ -192,7 +193,7 @@ classdef NewDroneSystem4Channel
                         previousDetection = true;
                         DS.initialZone = zone;
                         %[maxProb, maxProbIndex] = max(probs);
-                        % DS.databaseMatch();
+                        DS.databaseMatch();
                     else
                         disp('No drone detected');
                         previousDetection = false;
@@ -289,7 +290,7 @@ classdef NewDroneSystem4Channel
             for i = 1:DS.c.NUM_CHANNELS
                 waveform(:,i) = DS.detectors(i).getBufferedAudio;
                 transform(:,i) = DS.detectors(i).getTransform;
-                currentFeatures = DS.features(:,i);
+                currentFeatures = DS.features(:,i)';
                 currentFeatureMatrix = repmat(currentFeatures,size(DS.class1Data,1),1);
                 featureDifferences = abs(currentFeatureMatrix - DS.class1Data);
                 percentDifferences = abs(featureDifferences./currentFeatureMatrix);
@@ -301,7 +302,7 @@ classdef NewDroneSystem4Channel
                 else
                     disp('Drone does not exist in database');
                     % create a new signal profile for the data
-                    % CreateSignalProfile(waveform, 44100, transform)
+                    %CreateSignalProfile(waveform, 44100, transform)
                 end
             end
         end

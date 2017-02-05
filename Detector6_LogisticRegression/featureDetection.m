@@ -115,7 +115,7 @@ classdef featureDetection < handle
             %features = vertcat(D.domFreq1, D.domValue1);
             features = vertcat(D.domFreq1,D.domFreq2,...
                 D.domValue1,D.domValue2,...
-                D.energy);
+                D.energy,D.silence);
         end
         
         function pwrDB = getPwrDB(D)
