@@ -178,7 +178,7 @@ classdef NewDroneSystem4Channel
                     end
                 end
                 if updateDetection
-                    [zone, compass] = location_v3(pwrs);
+                    [zone, compass] = loc_mag(pwrs);
                     [oldDrone, currentDrone] = DS.newDroneDecision();
                     if(oldDrone || previousDetection)
                         disp('Old drone detected');
