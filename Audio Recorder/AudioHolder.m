@@ -1,5 +1,7 @@
 classdef AudioHolder < handle
-    %DETECTOR A detector object
+    %AUDIOHOLDER a modified version of the featureDetection class, which
+    %strips feature functionality and makes this just a class to hold
+    %audio.
     
     properties (SetAccess = private)
         % c should be a struct that holds essential constants for detector

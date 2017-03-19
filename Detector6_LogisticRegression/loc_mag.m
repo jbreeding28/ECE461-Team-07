@@ -1,5 +1,5 @@
 function [ zone, compass ] = loc_mag(pwrs);
-
+% A different approach to direction finding that didn't work. Do not use.
 % Drone direction detection by pure magnitude of four microphones
 
 % Written by Robert Vargo 2/7/17

@@ -1,5 +1,4 @@
-function [ zone, compass ] = location_v3_lower(pwrs);
-% An old deprecated version of the direction finding code.
+function [ zone, compass ] = directionFinder(pwrs);
 % Drone dB gains range from -89 dB (undetected) to -60 dB (Immediately next to the microphone)
 
 % speed of sound = 340.29 m/s
@@ -14,13 +13,14 @@ function [ zone, compass ] = location_v3_lower(pwrs);
 
 % 1.4833 (60 to 89) or 0.6742 (89 to 60)
 
-pwrDB1 = pwrs(4); % mic 1 in dB
-pwrDB2 = pwrs(3);
-pwrDB3 = pwrs(2);  % mic's reversed???
-pwrDB4 = pwrs(1);
+pwrDB1 = pwrs(1); % mic 1 in dB
+pwrDB2 = pwrs(2);
+pwrDB3 = pwrs(3);  % mic's reversed???
+pwrDB4 = pwrs(4);
 
-zone = 0;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% North 
 
 if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
     
@@ -38,47 +38,74 @@ if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
         
     else
         compass = 'North';
-        zone = 13
+        zone = 13;
     end
            
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% West
         
 elseif ( (pwrDB2 >= pwrDB1) && (pwrDB2 >= pwrDB3) && (pwrDB2 >= pwrDB4) )
     
     if ( ( (pwrDB2 >= (pwrDB3 * 0.65)) && (pwrDB2 >= (pwrDB4 * 0.63)) && (pwrDB2 >= (pwrDB1 * 0.75)) ) || ( (pwrDB2 >= (pwrDB3 * 0.75)) && (pwrDB2 >= (pwrDB4 * 0.63)) && (pwrDB2 >= (pwrDB1 * 0.65)) ) )
+        zone = 10;
+        compass = 'West';
+        
+    elseif ( ((pwrDB2 >= (pwrDB3 * 0.875)) && (pwrDB2 >= (pwrDB4 * 0.875)) && (pwrDB2 >= (pwrDB1 * 1))) && ( (pwrDB2 <= (pwrDB3 * 0.65)) && (pwrDB2 <= (pwrDB4 * 0.63)) && (pwrDB2 <= (pwrDB1 * 0.75)) ) )
+        zone = 11;
+        compass = 'West North West';
+        
+    elseif (  ((pwrDB2 >= (pwrDB3 * 1)) && (pwrDB2 >= (pwrDB4 * 0.875)) && (pwrDB2 >= (pwrDB1 * 0.875))) && ( (pwrDB2 <= (pwrDB3 * 0.75)) && (pwrDB2 <= (pwrDB4 * 0.63)) && (pwrDB2 <= (pwrDB1 * 0.65)) ) )
+        zone = 9;
+        compass = 'West South West';
+        
+    else
+        compass = 'West';
+        zone = 16;
+    end
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% East
+
+elseif ( (pwrDB4 >= pwrDB1) && (pwrDB4 >= pwrDB3) && (pwrDB4 >= pwrDB2) )
+    
+    if ( ( (pwrDB4 >= (pwrDB1 * 0.65)) && (pwrDB4 >= (pwrDB2 * 0.63)) && (pwrDB4 >= (pwrDB3 * 0.75)) ) || ( (pwrDB4 >= (pwrDB1 * 0.75)) && (pwrDB4 >= (pwrDB2 * 0.63)) && (pwrDB4 >= (pwrDB3 * 0.65)) ) )
         zone = 4;
         compass = 'East';
         
-    elseif ( ((pwrDB2 >= (pwrDB3 * 0.875)) && (pwrDB2 >= (pwrDB4 * 0.875)) && (pwrDB2 >= (pwrDB1 * 1))) && ( (pwrDB2 <= (pwrDB3 * 0.65)) && (pwrDB2 <= (pwrDB4 * 0.63)) && (pwrDB2 <= (pwrDB1 * 0.75)) ) )
-        zone = 3;
-        compass = 'East North East';
-        
-    elseif (  ((pwrDB2 >= (pwrDB3 * 1)) && (pwrDB2 >= (pwrDB4 * 0.875)) && (pwrDB2 >= (pwrDB1 * 0.875))) && ( (pwrDB2 <= (pwrDB3 * 0.75)) && (pwrDB2 <= (pwrDB4 * 0.63)) && (pwrDB2 <= (pwrDB1 * 0.65)) ) )
+    elseif ( ((pwrDB4 >= (pwrDB1 * 0.875)) && (pwrDB4 >= (pwrDB2 * 0.875)) && (pwrDB4 >= (pwrDB3 * 1))) && ( (pwrDB4 <= (pwrDB1 * 0.65)) && (pwrDB4 <= (pwrDB2 * 0.63)) && (pwrDB4 <= (pwrDB3 * 0.75)) ) )
         zone = 5;
         compass = 'East South East';
+        
+    elseif (  ((pwrDB4 >= (pwrDB1 * 1)) && (pwrDB4 >= (pwrDB2 * 0.875)) && (pwrDB4 >= (pwrDB3 * 0.875))) && ( (pwrDB4 <= (pwrDB1 * 0.75)) && (pwrDB4 <= (pwrDB2 * 0.63)) && (pwrDB4 <= (pwrDB3 * 0.65)) ) )
+        zone = 3;
+        compass = 'East North East';
         
     else
         compass = 'East';
         zone = 14;
     end
-        
+       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% South
+
+elseif ( (pwrDB3 >= pwrDB1) && (pwrDB3 >= pwrDB2) && (pwrDB3 >= pwrDB4) )
+    
+    if ( ( (pwrDB3 >= (pwrDB4 * 0.65)) && (pwrDB3 >= (pwrDB1 * 0.63)) && (pwrDB3 >= (pwrDB4 * 0.75)) ) || ( (pwrDB3 >= (pwrDB4 * 0.75)) && (pwrDB3 >= (pwrDB1 * 0.63)) && (pwrDB3 >= (pwrDB2 * 0.65)) ) )
+        zone = 7;
+        compass = 'South';
         
-% elseif ( (pwrDB1 >= (pwrDB2 * 0.941)) && (pwrDB1 >= (pwrDB3 * 0.75)) && (pwrDB1 >= (pwrDB4 * 0.941)) )
-%     zone = 4;
-%     compass = 'South East';    
-% elseif ( (pwrDB1 >= (pwrDB2 * 0.941)) && (pwrDB1 >= (pwrDB3 * 0.75)) && (pwrDB1 >= (pwrDB4 * 0.941)) )
-%     zone = 5; 
-%     compass = 'South';
-% elseif ( (pwrDB1 >= (pwrDB2 * 0.941)) && (pwrDB1 >= (pwrDB3 * 0.75)) && (pwrDB1 >= (pwrDB4 * 0.941)) )
-%     zone = 6;
-%     compass = 'South West';
-% elseif ( (pwrDB1 >= (pwrDB2 * 0.941)) && (pwrDB1 >= (pwrDB3 * 0.75)) && (pwrDB1 >= (pwrDB4 * 0.941)) )
-%     zone = 7;
-%     compass = 'West';
-% elseif 
-%     zone = 8;
-%     compass = 'North West';
+    elseif ( ((pwrDB3 >= (pwrDB4 * 0.875)) && (pwrDB3 >= (pwrDB1 * 0.875)) && (pwrDB3 >= (pwrDB2 * 1))) && ( (pwrDB3 <= (pwrDB4 * 0.65)) && (pwrDB3 <= (pwrDB1 * 0.63)) && (pwrDB3 <= (pwrDB2 * 0.75)) ) )
+        zone = 8;
+        compass = 'South South West';
+        
+    elseif (  ((pwrDB3 >= (pwrDB4 * 1)) && (pwrDB3 >= (pwrDB1 * 0.875)) && (pwrDB3 >= (pwrDB2 * 0.875))) && ( (pwrDB3 <= (pwrDB4 * 0.75)) && (pwrDB3 <= (pwrDB1 * 0.63)) && (pwrDB3 <= (pwrDB2 * 0.65)) ) )
+        zone = 6;
+        compass = 'South South East';
+        
+    else
+        compass = 'South';
+        zone = 15;
+    end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -91,5 +118,6 @@ else
 end
 
 display(compass)
+display(zone)
 
 end

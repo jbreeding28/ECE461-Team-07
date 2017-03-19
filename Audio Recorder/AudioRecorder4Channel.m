@@ -1,6 +1,5 @@
 classdef AudioRecorder4Channel
-    %NEWDRONESYSTEM This class builds up a drone system
-    %   Detailed explanation goes here
+    %AUDIORECORDER4CHANNEL records audio from 4 separate microphones
     
     properties
         % c holds constants
@@ -17,6 +16,9 @@ classdef AudioRecorder4Channel
     end
     
     methods
+        
+        % The constructor sets up the four audio-holding objects and
+        % initializes the audio recorder
         function DS = AudioRecorder4Channel(configSettings,kNNStuff)
             DS.shutdown = 0;
             DS.c = configSettings.constants;
@@ -31,6 +33,8 @@ classdef AudioRecorder4Channel
                 DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'DeviceName', ...
                 configSettings.audioDriver,'NumChannels', ...
                 DS.c.NUM_CHANNELS);
+            % Default recorder used for testing. Uses default computer
+            % microphone.
             %DS.audioRecorder = dsp.AudioRecorder('SamplesPerFrame', ...
             %    DS.c.FRAME_SIZE,'SampleRate',DS.c.Fs,'NumChannels', ...
             %    DS.c.NUM_CHANNELS);
@@ -39,8 +43,7 @@ classdef AudioRecorder4Channel
             DS.F_AXIS = linspace(0,DS.c.Fs/2,DS.c.WINDOW_SIZE/2+1);
         end
         
-        % consider trying to make an event called stop
-        
+        % Main loop
         function start(DS)
             % setup the live plots
             
@@ -126,16 +129,23 @@ classdef AudioRecorder4Channel
                 'Position',[10,5,50,20],'Callback', @saveAudio_Callback);
             closeButton = uicontrol('Style','pushbutton','String','Close',...
                 'Position',[500,5,50,20],'Callback', @closeWindow_Callback);
+            % A callback for the save button on the GUI.
             function saveAudio_Callback(hObject, eventdata)
+                % Choose the place to save the audio
                 [FileName,PathName] = uiputfile('.wav','Save Audio');
                 bufferSize = length(DS.recorders(1).getBuffer());
                 fileData = zeros(4,bufferSize);
                 fileNames = cell(4,1);
                 fileNameLength = length(FileName);
+                % saves audio as .wav files. Use this known to extract file
+                % extension from end of filename string.
                 fileExtension = FileName(fileNameLength - 3 : fileNameLength);
                 trueFileName = FileName(1:fileNameLength - 4);
                 for i = 1:DS.c.NUM_CHANNELS
                     fileData(i,:) = DS.recorders(i).getBuffer();
+                    % Add a '_1','_2' etc. onto the end of the filename
+                    % before the extension to save all four audio streams
+                    % as separate mono files.
                     fileNames(i) = cellstr([PathName trueFileName '_' num2str(i) fileExtension]);
                     audiowrite(char(fileNames(i)),fileData(i,:),44100);
                 end

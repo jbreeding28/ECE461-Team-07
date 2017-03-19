@@ -1,6 +1,8 @@
 classdef NewDroneSystem1Channel
-    %NEWDRONESYSTEM This class builds up a drone system
-    %   Detailed explanation goes here
+    %NEWDRONESYSTEM1CHANNEL Deprecated. This was used for testing purposes
+    %in the early stages of the system. This code is only built to work
+    %with 1 microphone so that it could be tested with the laptop's
+    %microphone.
     
     properties
         % c holds constants

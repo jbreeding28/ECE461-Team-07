@@ -1,6 +1,7 @@
 classdef NewDroneSystem
     %DRONESYSTEM This class builds up a drone system
-    %   Detailed explanation goes here
+    %   An early version before the code was separated into a 1 channel and
+    %   4 channel file.
     
     properties
         % c holds constants

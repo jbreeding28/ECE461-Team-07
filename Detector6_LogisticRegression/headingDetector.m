@@ -1,11 +1,14 @@
 function direction = headingDetector(initialZone, finalZone)
 
+% This heading detector takes in two zones from the direction finder and
+% returns a string heading.
+% The headings were all determined by hand.
 switch initialZone
     % 0 is inside
     case 0
         switch finalZone
             case 0
-                direction = 'No movement';
+                direction = 'None';
             case 1
                 direction = 'N';
             case 2
@@ -39,7 +42,7 @@ switch initialZone
             case 16
                 direction = 'W';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 1 is N
     case 1
@@ -47,7 +50,7 @@ switch initialZone
             case 0
                 direction = 'S';
             case 1
-                direction = 'No movement';
+                direction = 'None';
             case 2
                 direction = 'ESE';
             case 3
@@ -71,7 +74,7 @@ switch initialZone
             case 12
                 direction = 'WSW';
             case 13
-                direction = 'No movement';
+                direction = 'None';
             case 14
                 direction = 'SE';
             case 15
@@ -79,7 +82,7 @@ switch initialZone
             case 16
                 direction = 'SW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 2 is NNE
     case 2
@@ -89,7 +92,7 @@ switch initialZone
             case 1
                 direction = 'WNW';
             case 2
-                direction = 'No movement';
+                direction = 'None';
             case 3
                 direction = 'ESE';
             case 4
@@ -119,7 +122,7 @@ switch initialZone
             case 16
                 direction = 'WSW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 3 is ENE
     case 3
@@ -131,7 +134,7 @@ switch initialZone
             case 2
                 direction = 'NNW';
             case 3
-                direction = 'No movement';
+                direction = 'None';
             case 4
                 direction = 'SSE';
             case 5
@@ -159,7 +162,7 @@ switch initialZone
             case 16
                 direction = 'WSW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 4 is E
     case 4
@@ -173,7 +176,7 @@ switch initialZone
             case 3
                 direction = 'NNW';
             case 4
-                direction = 'No movement';
+                direction = 'None';
             case 5
                 direction = 'SSW';
             case 6
@@ -193,13 +196,13 @@ switch initialZone
             case 13
                 direction = 'NW';
             case 14
-                direction = 'No movement';
+                direction = 'None';
             case 15
                 direction = 'SW';
             case 16
                 direction = 'W';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 5 is ESE
     case 5
@@ -215,7 +218,7 @@ switch initialZone
             case 4
                 direction = 'NNE';
             case 5
-                direction = 'No movement';
+                direction = 'None';
             case 6
                 direction = 'SSW';
             case 7
@@ -239,7 +242,7 @@ switch initialZone
             case 16
                 direction = 'WNW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 6 is SSE
     case 6
@@ -257,7 +260,7 @@ switch initialZone
             case 5
                 direction = 'ENE';
             case 6
-                direction = 'No movement';
+                direction = 'None';
             case 7
                 direction = 'WSW';
             case 8
@@ -279,7 +282,7 @@ switch initialZone
             case 16
                 direction = 'WNW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 7 is S
     case 7
@@ -299,7 +302,7 @@ switch initialZone
             case 6
                 direction = 'ENE';
             case 7
-                direction = 'No movement';
+                direction = 'None';
             case 8
                 direction = 'WNW';
             case 9
@@ -315,11 +318,11 @@ switch initialZone
             case 14
                 direction = 'NE';
             case 15
-                direction = 'No movement';
+                direction = 'None';
             case 16
                 direction = 'NW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 8 is SSW
     case 8
@@ -341,7 +344,7 @@ switch initialZone
             case 7
                 direction = 'ESE';
             case 8
-                direction = 'No movement';
+                direction = 'None';
             case 9
                 direction = 'WNW';
             case 10
@@ -359,7 +362,7 @@ switch initialZone
             case 16
                 direction = 'NW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 9 is WSW
     case 9
@@ -383,7 +386,7 @@ switch initialZone
             case 8
                 direction = 'SSE';
             case 9
-                direction = 'No movement';
+                direction = 'None';
             case 10
                 direction = 'NNW';
             case 11
@@ -399,7 +402,7 @@ switch initialZone
             case 16
                 direction = 'NNW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 10 is W
     case 10
@@ -425,7 +428,7 @@ switch initialZone
             case 9
                 direction = 'SSE';
             case 10
-                direction = 'No movement';
+                direction = 'None';
             case 11
                 direction = 'NNE';
             case 12
@@ -437,9 +440,9 @@ switch initialZone
             case 15
                 direction = 'SE';
             case 16
-                direction = 'No movement';
+                direction = 'None';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 11 is WNW
     case 11
@@ -467,7 +470,7 @@ switch initialZone
             case 10
                 direction = 'SSW';
             case 11
-                direction = 'No movement';
+                direction = 'None';
             case 12
                 direction = 'NNE';
             case 13
@@ -479,7 +482,7 @@ switch initialZone
             case 16
                 direction = 'SSW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 12 is NNW
     case 12
@@ -509,7 +512,7 @@ switch initialZone
             case 11
                 direction = 'WSW';
             case 12
-                direction = 'No movement';
+                direction = 'None';
             case 13
                 direction = 'ENE';
             case 14
@@ -519,7 +522,7 @@ switch initialZone
             case 16
                 direction = 'SW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 13 is general N
     case 13
@@ -527,7 +530,7 @@ switch initialZone
             case 0
                 direction = 'S';
             case 1
-                direction = 'No movement';
+                direction = 'None';
             case 2
                 direction = 'ESE';
             case 3
@@ -551,7 +554,7 @@ switch initialZone
             case 12
                 direction = 'WSW';
             case 13
-                direction = 'No movement';
+                direction = 'None';
             case 14
                 direction = 'SE';
             case 15
@@ -559,7 +562,7 @@ switch initialZone
             case 16
                 direction = 'SW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 14 is general E
     case 14
@@ -573,7 +576,7 @@ switch initialZone
             case 3
                 direction = 'NNW';
             case 4
-                direction = 'No movement';
+                direction = 'None';
             case 5
                 direction = 'SSW';
             case 6
@@ -593,13 +596,13 @@ switch initialZone
             case 13
                 direction = 'NW';
             case 14
-                direction = 'No movement';
+                direction = 'None';
             case 15
                 direction = 'SW';
             case 16
                 direction = 'W';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 15 is general S
     case 15
@@ -619,7 +622,7 @@ switch initialZone
             case 6
                 direction = 'ENE';
             case 7
-                direction = 'No movement';
+                direction = 'None';
             case 8
                 direction = 'WNW';
             case 9
@@ -635,11 +638,11 @@ switch initialZone
             case 14
                 direction = 'NE';
             case 15
-                direction = 'No movement';
+                direction = 'None';
             case 16
                 direction = 'NW';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     % 16 is general W
     case 16
@@ -665,7 +668,7 @@ switch initialZone
             case 9
                 direction = 'SSE';
             case 10
-                direction = 'No movement';
+                direction = 'None';
             case 11
                 direction = 'NNE';
             case 12
@@ -677,10 +680,10 @@ switch initialZone
             case 15
                 direction = 'SE';
             case 16
-                direction = 'No movement';
+                direction = 'None';
             otherwise
-                direction = 'No movement';
+                direction = 'None';
         end
     otherwise
-        direction = 'No movement';
+        direction = 'None';
 end

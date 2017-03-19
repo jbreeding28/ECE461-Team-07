@@ -1,4 +1,5 @@
 function [ zone, compass ] = location_v3_hi(pwrs);
+% An old deprecated version of the direction finding code.
 % Drone dB gains range from -89 dB (undetected) to -60 dB (Immediately next to the microphone)
 
 % speed of sound = 340.29 m/s
