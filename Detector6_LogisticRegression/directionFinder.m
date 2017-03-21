@@ -1,26 +1,37 @@
 function [ zone, compass ] = directionFinder(pwrs);
-% Drone dB gains range from -89 dB (undetected) to -60 dB (Immediately next to the microphone)
 
-% speed of sound = 340.29 m/s
-
-% Inverse squared law?
-
+% Written by Robert Vargo
+% ECE senior design team 12, 2016-17
+% Client: NSWC Crane
+% 
+% This function is meant to identify in what direction a detected drone is.
+% It attempts to decide between 30* sections. If a section is not
+% determinable, it will default to the most accurate quadrant of N, W, S,
+% or E.
+% 
+% The code's inner structure consists of looking for the strongest
+% microphone, then comparing powers amongst all the microphones to
+% determine an appropriate sector. If no microphone is stronger, the system
+% defaults to an inside detection.
+%
+% Power value comparisons are based on data taken from field testing the
+% drone's power levels at division points along sectors.
+%
 % 3 sections per quadrant --> 12 sections --> 30 degree cones
-% Biased for N,NNE,ENE,E,ESE,SSE,S, etc in that order where mic 1 is
-% "north" and mic 4 is "east"
-
-% mic "1" is at the north segment?
-
-% 1.4833 (60 to 89) or 0.6742 (89 to 60)
+% Mic 1: NNE, N, NNW
+% Mic 2: WNW, W, WSW
+% Mic 3: SSW, S, SSE
+% Mic 4: ESE, E, ENE
+% 
 
 pwrDB1 = pwrs(1); % mic 1 in dB
 pwrDB2 = pwrs(2);
-pwrDB3 = pwrs(3);  % mic's reversed???
+pwrDB3 = pwrs(3); % mic's reversed???
 pwrDB4 = pwrs(4);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% North 
+% North (mic 1)
 
 if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
     
@@ -42,7 +53,7 @@ if ( (pwrDB1 >= pwrDB2) && (pwrDB1 >= pwrDB3) && (pwrDB1 >= pwrDB4) )
     end
            
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% West
+% West (mic 2)
         
 elseif ( (pwrDB2 >= pwrDB1) && (pwrDB2 >= pwrDB3) && (pwrDB2 >= pwrDB4) )
     
@@ -64,7 +75,7 @@ elseif ( (pwrDB2 >= pwrDB1) && (pwrDB2 >= pwrDB3) && (pwrDB2 >= pwrDB4) )
     end
         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% East
+% East (mic 4)
 
 elseif ( (pwrDB4 >= pwrDB1) && (pwrDB4 >= pwrDB3) && (pwrDB4 >= pwrDB2) )
     
@@ -86,7 +97,7 @@ elseif ( (pwrDB4 >= pwrDB1) && (pwrDB4 >= pwrDB3) && (pwrDB4 >= pwrDB2) )
     end
        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% South
+% South (mic 3)
 
 elseif ( (pwrDB3 >= pwrDB1) && (pwrDB3 >= pwrDB2) && (pwrDB3 >= pwrDB4) )
     
@@ -108,7 +119,7 @@ elseif ( (pwrDB3 >= pwrDB1) && (pwrDB3 >= pwrDB2) && (pwrDB3 >= pwrDB4) )
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+% If no zone discernable
 else
     compass = 'inside?';
     zone = 0;
@@ -116,8 +127,5 @@ else
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
-
-display(compass)
-display(zone)
 
 end

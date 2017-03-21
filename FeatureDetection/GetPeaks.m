@@ -1,4 +1,27 @@
+% This function finds all of the peaks in an audio waveforms frequency
+% spectrum. It then takes into account the parameters passed in and finds
+% the top number of peaks equal to the values parameter that are at least
+% MPD apart from eachother.
+%
+%   A portion of this code was borrowed from an online Mathworks source
+%   made available to the public. This code was used to determine all of 
+%   the peaks in the spectrum before the qualifying parameters are applied.
+%
+% Inputs:
+%   spectrum: the frequency spectrum of the audio waveform being examined
+%
+%   Fs: the sampling frequency of the audio being examined
+%
+%   value: the number of spectrum peaks to find
+%
+%   MPD: minimum peak distance between the peaks to find
+%
+% Outputs:
+%   peaks: the amplitude values of the spectrum peaks
+%
+%   freqs: the frequency values that the spectrum peaks are located at
 function [peaks, freqs] = GetPeaks(spectrum, Fs, values, MPD)
+%set up default values
 if (nargin < 4)
     MPD = 200;
 end
@@ -7,8 +30,13 @@ if (nargin < 3)
 end
 
 if nargin < 2
-    Fs = 44100
+    Fs = 44100;
 end
+
+%--------------------------------------------------------------------------
+%until further notice, this code is the borrowed code used to find the
+%peaks in the spectrum
+%--------------------------------------------------------------------------
 
 len0 = numel(spectrum);
 sel = (max(spectrum)-min(spectrum))/4;
@@ -129,25 +157,6 @@ else % This is a monotone function where an endpoint is the only peak
     end
 end
 
-% Apply threshold value.  Since always finding maxima it will always be
-%   larger than the thresh.
-% if ~isempty(thresh)
-%     m = peakMags>thresh;
-%     peakInds = peakInds(m);
-%     peakMags = peakMags(m);
-% end
-% 
-% if interpolate && ~isempty(peakMags)
-%     middleMask = (peakInds > 1) & (peakInds < len0);
-%     noEnds = peakInds(middleMask);
-% 
-%     magDiff = x0(noEnds + 1) - x0(noEnds - 1);
-%     magSum = x0(noEnds - 1) + x0(noEnds + 1)  - 2 * x0(noEnds);
-%     magRatio = magDiff ./ magSum;
-% 
-%     peakInds(middleMask) = peakInds(middleMask) - magRatio/2;
-%     peakMags(middleMask) = peakMags(middleMask) - magRatio .* magDiff/8;
-% end
 
 % Plot if no output desired
     if isempty(peakInds)
@@ -171,29 +180,47 @@ else
     spectrum = spectrum(length(spectrum)/2-0.5:end);
 end
 f = linspace(0,Fs/2,length(spectrum)); 
-peakFreqs = stuff-length(spectrum);
-peakFreqs = f(peakFreqs);
+peakFreqsIndices = stuff-length(spectrum);
+for i = 1:length(peakFreqsIndices)
+    if(peakFreqsIndices(i) > 0)
+        peakFreqs(i) = f(peakFreqsIndices(i));        
+    end
+end
+%figure();
 %plot(f,spectrum,peakFreqs,thing,'r');
-%testLength = peakMags(floor(length(peakMags)/2) + 1:length(peakMags))
-[sortedValue, sortedIndex] = sort(peakMags(floor(length(peakMags)/2) + 1:length(peakMags)),'descend');
+
+%--------------------------------------------------------------------------
+%after this point, the code was independantly written and not bottowed
+%--------------------------------------------------------------------------
+
+[sortedValue, sortedIndex] = sort(peakMags(ceil(length(peakMags)/2)+1:floor(length(peakMags))),'descend');
 pointsToSave = zeros([1,values]);
 peakValue = zeros([1,values]);
 temp = zeros([1,values]);
 foundCount = 1;
 check = 1;
 if(values > 1)
-     for i = 1:(length(sortedIndex))
+     for i = 1:(length(peakFreqs)-1)
          if(i == 1)
              pointsToSave(foundCount) = sortedIndex(i);
-             peakValue(foundCount) = sortedValue(i);%figure();
-
+             peakValue(foundCount) = sortedValue(i);
              foundCount = foundCount + 1;
          
          else
              check = 1;
              for j = 1:(foundCount - 1)
-                 if(abs(peakFreqs(pointsToSave(j)) - peakFreqs(sortedIndex(i))) < MPD)
+                 %i
+                 %j
+                 %sortedIndexLength = length(sortedIndex)
+                 %peakFreqsLength = length(peakFreqs)
+                 %pointsToSaveLength = length(pointsToSave)
+                 %pointToSave = peakFreqs(pointsToSave(j))
+                 %sortedIndexCheck = sortedIndex(i)
+                 %sortedFreq = peakFreqs(sortedIndex(i))
+                 if((sortedIndex(i)<=length(peakFreqs))&&abs(peakFreqs(pointsToSave(j)) - peakFreqs(sortedIndex(i))) < MPD)
                      check = 0;
+                 elseif((sortedIndex(i)>length(peakFreqs)))
+                     check=0;
                  end
              end
              if(check == 1)%abs((peakFreqs(sortedIndex(i-1)) - peakFreqs(sortedIndex(i)))) > MPD)
@@ -202,20 +229,19 @@ if(values > 1)
              foundCount = foundCount + 1;
              end
          end
+         %foundCount
          if(foundCount > values)
              break;
          end
          
      end
 end
-
+peaks = zeros([1,values]);
+freqs = zeros([1,values]);
 for i = 1:length(pointsToSave)
     if(pointsToSave(i) > 0)
         peaks(i) = peakValue(i);
         freqs(i) = peakFreqs(pointsToSave(i));
-    else
-        peaks(i) = 0;
-        freqs(i) = 0;
     end
 end
 % [peaks, indices] = findpeaks(peakMags,'MinPeakDistance', MPD);%, 'NPeaks', values);

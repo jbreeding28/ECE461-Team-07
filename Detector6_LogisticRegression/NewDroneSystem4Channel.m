@@ -80,7 +80,11 @@ classdef NewDroneSystem4Channel
             
             % This pulls up a dialog window to establish the cutoff
             % probability and percentage of data used to build the model.
-            load(cast(fileName,'char'));
+            try
+                load(cast(fileName,'char'));
+            catch ERROR
+                return;
+            end
             prompt = {'Enter detection probability cutoff (0 to 1)',...
                 'Enter model data fraction (0 to 1)'};
             title = 'Model Building Parameters';
@@ -132,7 +136,7 @@ classdef NewDroneSystem4Channel
                 double(DominantFrequencyValue),...
                 double(SecondHighestFrequencyValue),...
                 double(Energy),...
-                double(Percentages));
+                double(SilencePercentage));
             
             %    double(SpectrumCentroid));
             % goes through the data to separate it into Class 1 and Class 0
@@ -270,7 +274,7 @@ classdef NewDroneSystem4Channel
                         %[maxProb, maxProbIndex] = max(probs);
                         
                     else
-                        disp('No drone detected');
+                        %disp('No drone detected');
                         previousDetection = false;
                         DS.initialZone = 0;
                         DS.finalZone = 0;

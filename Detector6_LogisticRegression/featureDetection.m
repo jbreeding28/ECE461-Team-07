@@ -117,7 +117,7 @@ classdef featureDetection < handle
                 [STZCR, avgZCR, D.zcr] = GetZCRInfo(D.bufferedAudio);
                 % we calculate the first five peaks. However, using all of
                 % these led to issues when built into a database matrix.
-                D.domFreq1 = dominantFrequencies(1)
+                D.domFreq1 = dominantFrequencies(1);
                 D.domFreq2 = dominantFrequencies(2);
                 D.domFreq3 = dominantFrequencies(3);
                 D.domFreq4 = dominantFrequencies(4);
